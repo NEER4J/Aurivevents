@@ -471,3 +471,80 @@ html.auth-mode .wrap{min-height:100%}
 .sec-label .btn.sm{min-height:32px;padding:5px 14px;font-size:13.5px}
 .sec-label .pill{background:var(--panel)}
 .tabs{gap:22px!important}
+
+/* ---------- phone layout rules: no cramped columns ---------- */
+/* Content cards stack full width; only stat tiles sit two-up. */
+.grid:has(> .card:not(.stat)),.grid:has(> div:not(.card)){grid-template-columns:1fr!important}
+/* Chips inside cards wrap normally (only page-level filter chips scroll). */
+.card .chips:has(> .btn.chip),.modal .chips:has(> .btn.chip){flex-wrap:wrap;overflow:visible;margin:0;padding:0}
+.btn{white-space:nowrap}
+.card .btn.chip{background:var(--fill)}
+.card .btn.chip.on{background:var(--ink)}
+/* Card header rows: title left, actions right, wrapping cleanly underneath when needed. */
+.card > .row.between:first-child{align-items:center;row-gap:10px;margin-bottom:6px}
+.card > .row.between:first-child > .row{flex-wrap:wrap;justify-content:flex-end}
+.card .eyebrow{font-size:13.5px}
+
+/* =====================================================================
+   Custom dropdowns
+   ===================================================================== */
+.sel{position:relative;display:block;width:100%;min-width:0}
+.row > .sel,.chips > .sel{width:auto;display:inline-block}
+.sel-native{position:absolute!important;inset:0;opacity:0!important;pointer-events:none;width:100%!important;height:100%!important;min-height:0!important}
+.sel-btn{width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px 12px 18px;border:1px solid transparent;border-radius:18px;background:var(--panel);color:var(--ink);font:inherit;font-size:16px;text-align:left;cursor:pointer;transition:border-color .2s,background-color .2s,transform .18s var(--ease)}
+.card .sel-btn,.modal .sel-btn,.cloud-card .sel-btn{background:var(--fill)}
+.cloud-card .sel-btn{background:var(--panel);min-height:46px;font-size:15px}
+.sel-btn:active{transform:scale(.98)}
+.sel-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.sel-btn .sel-val{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sel-btn.empty .sel-val{color:var(--muted)}
+.sel-btn svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sel-btn:disabled{opacity:.45;cursor:not-allowed}
+.sel.sel-sm .sel-btn{min-height:42px;font-size:14.5px;padding:8px 12px 8px 16px;border-radius:999px}
+.picker{position:absolute;inset:0;z-index:90;display:flex;align-items:flex-end}
+.pk-scrim{position:absolute;inset:0;background:rgba(0,0,0,.36);opacity:0;transition:opacity .3s}
+.pk-sheet{position:relative;width:100%;max-height:72%;display:flex;flex-direction:column;background:var(--panel);border-radius:34px 34px 0 0;padding:12px 12px calc(20px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .42s var(--ease)}
+.pk-sheet::before{content:"";display:block;width:38px;height:5px;border-radius:999px;background:var(--line-2);margin:0 auto 10px;flex:none}
+.picker.in .pk-scrim{opacity:1}
+.picker.in .pk-sheet{transform:none}
+.picker.out .pk-scrim{opacity:0;transition-duration:.25s}
+.picker.out .pk-sheet{transform:translateY(100%);transition:transform .28s var(--ease-in)}
+.pk-hd{display:flex;align-items:center;justify-content:space-between;padding:4px 10px 10px}
+.pk-title{font-size:20px;font-weight:500;letter-spacing:-.025em}
+.pk-x{width:36px;height:36px;border-radius:50%;border:0;background:var(--fill);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pk-x svg,.pk-opt svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pk-search{margin:0 4px 8px;width:calc(100% - 8px);background:var(--fill)!important;min-height:46px}
+.pk-list{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding:0 2px}
+.pk-group{font-size:12.5px;color:var(--muted);padding:14px 14px 6px}
+.pk-opt{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;padding:12px 16px;border:0;border-radius:18px;background:transparent;color:var(--ink);font:inherit;font-size:16px;text-align:left;cursor:pointer;transition:background-color .15s}
+.pk-opt:hover{background:var(--fill)}
+.pk-opt svg{opacity:0;transform:scale(.6);transition:opacity .2s,transform .25s var(--ease)}
+.pk-opt.on{background:var(--ink);color:var(--bg)}
+.pk-opt.on svg{opacity:1;transform:none}
+.pk-opt:disabled{opacity:.35}
+.picker.in .pk-opt{animation:rise .4s var(--ease) both;animation-delay:calc(var(--k,0) * 18ms + 80ms)}
+
+/* =====================================================================
+   Tables on a phone: 3+ columns become stacked rows
+   ===================================================================== */
+table.stacked,table.stacked tbody,table.stacked tfoot,table.stacked tr,table.stacked td{display:block;width:100%}
+table.stacked thead{display:none}
+table.stacked tr{padding:14px 0;border-bottom:1px solid var(--line)}
+table.stacked tr:last-child{border-bottom:0}
+table.stacked td{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:3px 0;border:0;text-align:right!important;font-size:14px}
+table.stacked td::before{content:attr(data-label);color:var(--muted);text-align:left;flex:none;max-width:48%;font-size:13px}
+table.stacked td[data-label=""]::before{content:none}
+table.stacked td:first-child{display:block;text-align:left!important;font-size:15.5px;font-weight:500;letter-spacing:-.01em;padding-bottom:6px}
+table.stacked td:first-child::before{content:none}
+table.stacked td.blank{display:none}
+table.stacked td .pill{white-space:normal}
+.scroll.scroll-stacked{overflow:visible;margin:0;padding:0}
+table.tbl-2 td:last-child,table.tbl-2 th:last-child{text-align:right}
+table.tbl-2 td{font-size:14px}
+
+/* ---------- overflow hygiene ---------- */
+.btn{white-space:normal;max-width:100%;text-align:center}
+.btn.chip,.tabs .btn,.tabbar a,.sec-label .btn{white-space:nowrap}
+.grid>*,.two>*,.row>*{min-width:0}
+.num,.val,.stat .val{overflow-wrap:normal!important;word-break:keep-all}
+.card>.row>div .num{white-space:nowrap}
