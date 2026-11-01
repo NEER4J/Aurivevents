@@ -48,7 +48,7 @@ drop policy if exists "ws: members read"    on public.shared_workspaces;
 drop policy if exists "ws: owner creates"   on public.shared_workspaces;
 drop policy if exists "ws: owner renames"   on public.shared_workspaces;
 drop policy if exists "ws: owner deletes"   on public.shared_workspaces;
-create policy "ws: members read"  on public.shared_workspaces for select to authenticated using (public.is_ws_member(id));
+create policy "ws: members read"  on public.shared_workspaces for select to authenticated using (owner_id = auth.uid() or public.is_ws_member(id));
 create policy "ws: owner creates" on public.shared_workspaces for insert to authenticated with check (owner_id = auth.uid());
 create policy "ws: owner renames" on public.shared_workspaces for update to authenticated using (owner_id = auth.uid()) with check (owner_id = auth.uid());
 create policy "ws: owner deletes" on public.shared_workspaces for delete to authenticated using (owner_id = auth.uid());

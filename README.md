@@ -3,7 +3,7 @@
 Event-company operations app — quotes, vendors, client money, crew, run sheets — with a mobile-first UI.
 The web app renders as a phone layout everywhere (framed on desktop) so it matches the upcoming mobile app.
 
-**Live:** https://neer4j.github.io/Aurivevents/
+**Live:** https://aurivevents.vercel.app/
 
 ## Structure
 ```
@@ -34,11 +34,11 @@ Run both migrations in order (SQL editor, or `supabase db push`):
 **Demo account:** `demo@aurivevents.app` / `AurivDemo#2026` (or tap *Explore the demo*).
 
 ### Auth settings (Supabase dashboard → Authentication → URL Configuration)
-- Site URL: `https://neer4j.github.io/Aurivevents/`
-- Redirect URLs: `https://neer4j.github.io/Aurivevents/**`, `http://localhost:8080/**`
+- Site URL: `https://aurivevents.vercel.app/`
+- Redirect URLs: `https://aurivevents.vercel.app/**`, `http://localhost:8080/**`
 
 ## Deploy
-GitHub Pages → Settings → Pages → *Deploy from a branch* → `main` / `(root)`.
+Hosted on Vercel (static, no build step): every push to `main` deploys to https://aurivevents.vercel.app.
 
 ## Run locally
 ```bash

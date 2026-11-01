@@ -202,15 +202,29 @@
     const w = byLid[lid]; if (!w) return;
     const base = +lsGet(M.rev(lid)) || w.rev;
     const { data, error } = await sb.rpc('save_workspace', { p_id: w.id, p_data: snapshot(lid), p_base_rev: base });
+    if (error && (error.code === '42501' || /not a member/i.test(error.message || ''))) { dropShared(lid, 'You no longer have access to ' + w.name + '.'); return }
     if (error) throw error;
     if (data === -1) { await applyRemote(w, 'A teammate saved changes at the same time. You are seeing the latest — please redo your last change.'); return }
     w.rev = data; lsSet(M.rev(lid), String(data)); lsDel(M.dirty(lid));
   }
 
+  /* Company deleted or access removed: forget it on this device and fall back to another company. */
+  function dropShared(lid, why) {
+    const w = byLid[lid]; if (!w) return;
+    CLOUD.shared = CLOUD.shared.filter(x => x.local_id !== lid); rebuildIndex();
+    dirty.delete(lid); lsDel(M.rev(lid)); lsDel(M.dirty(lid)); lsSet(M.shared, JSON.stringify(Object.keys(byLid)));
+    keysOfLid(lid).forEach(lsDel);
+    let list = []; try { list = JSON.parse(lsGet(WS_LIST) || '[]') } catch (e) {}
+    lsSet(WS_LIST, JSON.stringify(list.filter(x => x.id !== lid)));
+    if (curWS() === lid) { try { sessionStorage.clear(); location.reload(); return } catch (e) {} }
+    if (why) toastSafe(why);
+  }
+
   async function checkRemote() {
     if (!CLOUD.user || !navigator.onLine) return;
     // Shared workspaces: catch up on anything missed while in the background
-    const { data } = await sb.from('shared_workspaces').select('id,local_id,rev');
+    const { data, error: wsErr } = await sb.from('shared_workspaces').select('id,local_id,rev');
+    if (!wsErr) Object.keys(byLid).forEach(l => { if (!(data || []).some(r => r.local_id === l)) dropShared(l, 'A shared company was removed') });
     (data || []).forEach(r => { const w = byLid[r.local_id]; if (w && r.rev > (+lsGet(M.rev(r.local_id)) || 0) && !dirty.has(r.local_id) && !modalOpen()) applyRemote(w, 'Updated with your team’s latest changes') });
     // Personal data changed on another device
     if (dirty.has('me') || pushing || modalOpen()) return;
@@ -227,7 +241,7 @@
         if (n.rev <= (+lsGet(M.rev(w.local_id)) || 0) || dirty.has(w.local_id)) return;
         const apply = () => { if (modalOpen()) return setTimeout(apply, 2500); applyRemote(w, (n.updated_by && n.updated_by !== CLOUD.user.id) ? 'Updated by a teammate' : '') };
         apply();
-      }).subscribe();
+      }).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'shared_workspaces' }, () => checkRemote()).subscribe();
     } catch (e) { console.warn('realtime', e) }
   }
 
@@ -297,7 +311,10 @@
     if (!lid || lid === 'ws_sample' || S.sample) throw new Error('The sample company cannot be shared. Create your own company first.');
     if (byLid[lid]) return byLid[lid];
     await push(true);
-    const { data: w, error } = await sb.from('shared_workspaces').insert({ local_id: lid, name: S.company.name, owner_id: CLOUD.user.id, data: snapshotLid(lid), rev: 1 }).select('id,local_id,name,owner_id,rev').single();
+    // Insert first, then read back (RETURNING would be checked before the row is visible to the read policy).
+    const ins = await sb.from('shared_workspaces').insert({ local_id: lid, name: S.company.name, owner_id: CLOUD.user.id, data: snapshotLid(lid), rev: 1 });
+    if (ins.error) throw ins.error;
+    const { data: w, error } = await sb.from('shared_workspaces').select('id,local_id,name,owner_id,rev').eq('local_id', lid).single();
     if (error) throw error;
     const meId = me().id;
     const m = await sb.from('workspace_members').insert({ workspace_id: w.id, email: CLOUD.user.email.toLowerCase(), user_id: CLOUD.user.id, app_user_id: meId });
