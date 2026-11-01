@@ -57,17 +57,74 @@
       a.innerHTML = `<span class="ti">${svg(key)}${c ? `<b class="tb">${c === '•' ? '' : esc(c)}</b>` : ''}</span><span class="tl">${esc(label)}</span>`;
       a.dataset.dec = '1';
     });
-    // Drawer footer: cloud account
-    const foot = document.getElementById('sidefoot');
+    // Drawer footer: cloud account, company switcher, team access
+    const foot = document.getElementById('side-account');
     const C = window.AURIV_CLOUD;
-    if (foot && C && C.user && !foot.querySelector('.cloud-card')) {
-      foot.insertAdjacentHTML('afterbegin', `<div class="cloud-card"><div class="cc-row"><span class="cc-dot"></span><span id="cloud-state">${C.state === 'saving' ? 'Syncing…' : 'Synced to cloud'}</span></div><div class="cc-mail">${esc(C.user.email)}${C.isDemo() ? ' <span class="ab-tag">Demo</span>' : ''}</div>${C.isDemo() ? '<button class="btn sm" data-ui-act="reset-demo">Reset demo data</button>' : ''}</div>`);
+    if (foot && C && C.user) {
+      const ws = workspaces(); const sh = C.currentShared();
+      const owner = sh ? sh.owner_id === C.user.id : (u && u.role === 'owner' && !S.sample);
+      foot.innerHTML = (`<div class="cloud-card">
+        <div class="cc-row"><span class="cc-dot"></span><span id="cloud-state">${C.state === 'saving' ? 'Syncing…' : C.state === 'offline' ? 'Offline — will sync later' : 'Synced to cloud'}</span></div>
+        <div class="cc-mail">${esc(C.user.email)}${C.isDemo() ? ' <span class="ab-tag">Demo</span>' : ''}</div>
+        <label for="ui-ws" class="cc-lbl">Company</label>
+        <select id="ui-ws" data-ui-ws>${ws.map(x => `<option value="${esc(x.id)}" ${x.id === WS ? 'selected' : ''}>${esc(x.name)}${C.shared.some(s => s.local_id === x.id) ? ' · team' : ''}</option>`).join('')}</select>
+        <div class="row" style="gap:6px">
+          ${(owner || sh) && !C.isDemo() ? `<button class="btn sm" data-ui-act="team">${sh ? 'Team access' : 'Share with team'}</button>` : ''}
+          <button class="btn sm" data-act="ws-new">+ New company</button>
+          ${sh && !owner ? '<button class="btn sm danger" data-ui-act="leave">Leave</button>' : ''}
+          ${C.isDemo() ? '<button class="btn sm" data-ui-act="reset-demo">Reset demo</button>' : ''}
+        </div></div>`);
     }
   }
-  document.addEventListener('click', e => {
-    const b = e.target.closest('[data-ui-act="reset-demo"]'); if (!b) return;
-    if (confirm('Reset the demo company back to its sample data?')) window.AURIV_CLOUD.resetDemo();
+  document.addEventListener('change', e => {
+    if (!e.target.matches('[data-ui-ws]')) return;
+    closeDrawer(); switchWorkspace(e.target.value);
   });
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-ui-act]'); if (!b) return;
+    const a = b.dataset.uiAct, C = window.AURIV_CLOUD;
+    if (a === 'reset-demo') { if (confirm('Reset the demo company back to its sample data?')) C.resetDemo(); return }
+    if (a === 'leave') { if (confirm('Leave ' + S.company.name + '? You will lose access until the owner invites you again.')) C.leave(); return }
+    if (a === 'team') { closeDrawer(); teamModal(); return }
+    if (a === 'share-now') { b.disabled = true; b.textContent = 'Sharing…'; C.shareCurrent().then(() => { toast('Company shared'); teamModal() }).catch(err => { b.disabled = false; b.textContent = 'Share this company'; toast(err.message) }); return }
+    if (a === 'rm-member') { if (!confirm('Remove ' + b.dataset.email + ' from this company?')) return; C.removeMember(b.dataset.email).then(() => { toast('Removed'); teamModal() }).catch(err => toast(err.message)); return }
+    if (a === 'copy-link') { const t = location.origin + location.pathname; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Link copied'), () => prompt('Copy this link', t)) }
+  });
+
+  async function teamModal() {
+    const C = window.AURIV_CLOUD; const sh = C.currentShared();
+    if (!sh) {
+      return openModal(`${hd('Share with your team')}
+        <p>Put <b>${esc(S.company.name)}</b> in the cloud so your team can sign in from their own phones. Everyone works on the same events, and changes show up for the others within seconds.</p>
+        <div class="note small">What each person can see still follows their role in <b>Settings → Team</b> (owner, planner, manager, staff).</div>
+        <div class="ft"><button class="btn" data-act="close">Not now</button><button class="btn pri" data-ui-act="share-now">Share this company</button></div>`);
+    }
+    openModal(`${hd('Team access')}<div id="team-body" class="boot" style="min-height:120px"><div class="boot-spin"></div></div>`);
+    let rows = [];
+    try { rows = await C.members() } catch (err) { const tb = document.getElementById('team-body'); if (tb) tb.outerHTML = `<div class="alert small">${esc(err.message)}</div>`; return }
+    const tb = document.getElementById('team-body'); if (!tb) return;
+    const owner = sh.owner_id === C.user.id;
+    const name = id => { const x = S.users.find(u => u.id === id); return x ? `${esc(x.name)} · ${esc((ROLES[x.role] || {}).label || x.role)}` : '<span class="muted">Unknown team member</span>' };
+    const linked = new Set(rows.map(r => r.app_user_id));
+    const free = S.users.filter(u => u.active !== false && !linked.has(u.id));
+    tb.outerHTML = `<div class="list">${rows.map(r => `<div class="item row between" style="flex-wrap:nowrap">
+        <div style="min-width:0"><div class="t" style="overflow-wrap:anywhere">${esc(r.email)}</div><div class="meta">${name(r.app_user_id)}</div></div>
+        <div class="row" style="gap:6px;flex-wrap:nowrap">${r.user_id ? '<span class="pill ok">Joined</span>' : '<span class="pill warn">Invited</span>'}
+        ${owner && r.user_id !== C.user.id ? `<button class="btn sm danger" data-ui-act="rm-member" data-email="${esc(r.email)}" aria-label="Remove">✕</button>` : ''}</div></div>`).join('')}</div>
+      ${owner ? (free.length ? `<form id="f-team" style="margin-top:8px"><h3 style="margin-top:12px">Invite someone</h3>
+        <label for="tm-email">Their email</label><input id="tm-email" type="email" required placeholder="name@company.com" inputmode="email">
+        <label for="tm-user">They are</label><select id="tm-user">${free.map(u => `<option value="${esc(u.id)}">${esc(u.name)} · ${esc((ROLES[u.role] || {}).label || u.role)}</option>`).join('')}</select>
+        <div class="help">Not in the list? Add them first under Settings → Team, then come back.</div>
+        <div class="ft"><button class="btn" type="button" data-ui-act="copy-link">Copy app link</button><button class="btn pri" type="submit">Send invite</button></div></form>
+        <p class="help">They sign up at the app link with this email. The company appears for them automatically.</p>`
+      : '<div class="note small" style="margin-top:12px">Everyone on your team already has access. Add more people under Settings → Team.</div>') : '<p class="help">Only the owner can invite or remove people.</p>'}`;
+    const f = document.getElementById('f-team');
+    if (f) f.addEventListener('submit', e => {
+      e.preventDefault(); const em = document.getElementById('tm-email').value.trim();
+      if (!/^\S+@\S+\.\S+$/.test(em)) return toast('Enter a valid email');
+      C.invite(em, document.getElementById('tm-user').value).then(() => { toast('Invite saved'); teamModal() }).catch(err => toast(err.message));
+    });
+  }
 
   const _render = render;
   render = function () { const r = _render.apply(this, arguments); try { decorate() } catch (e) { console.error(e) } return r };

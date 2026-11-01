@@ -17,20 +17,28 @@ supabase/             Supabase CLI project (migrations)
 ```
 
 ## Supabase
-Auth is email + password. Each user's data is stored in `public.app_state` (one JSON row per user, protected by RLS)
-and synced from the device a moment after every change; the app keeps working offline and catches up when back online.
+- **Auth:** email + password, sign-up with email confirmation, forgot / reset password, demo account.
+- **Personal data:** `public.app_state`, one JSON row per user (RLS: only you).
+- **Team companies:** an owner taps *Share with team* in the menu; the company moves to `public.shared_workspaces`.
+  The owner invites teammates by email and picks which team member (role) they are. Teammates sign up with that
+  email and the company appears for them. Saves use optimistic locking (`save_workspace` RPC) and Realtime pushes
+  changes to everyone within seconds.
+- **Files** (documents, photos, receipts): Storage bucket `files`, private, per-user / per-company folders.
+- Works offline; changes sync when the connection returns.
 
-Set up the database once (creates the table, policies and the demo account):
+### Database setup
+Run both migrations in order (SQL editor, or `supabase db push`):
+1. `supabase/migrations/20261101000000_app_state.sql` — personal data + demo account
+2. `supabase/migrations/20261102000000_team_and_files.sql` — team companies, realtime, file storage
 
-```bash
-supabase login
-supabase link --project-ref qbtuodsyoqitukxqlptc
-supabase db push
-```
+**Demo account:** `demo@aurivevents.app` / `AurivDemo#2026` (or tap *Explore the demo*).
 
-…or paste `supabase/migrations/20261101000000_app_state.sql` into the Supabase SQL editor and run it.
+### Auth settings (Supabase dashboard → Authentication → URL Configuration)
+- Site URL: `https://neer4j.github.io/Aurivevents/`
+- Redirect URLs: `https://neer4j.github.io/Aurivevents/**`, `http://localhost:8080/**`
 
-**Demo account:** `demo@aurivevents.app` / `AurivDemo#2026` (or tap *Explore the demo* on the sign-in screen).
+## Deploy
+GitHub Pages → Settings → Pages → *Deploy from a branch* → `main` / `(root)`.
 
 ## Run locally
 ```bash
