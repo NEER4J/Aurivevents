@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#F5F4F0" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0E1311" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F4F4F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="Aurivevents — run events end to end and know your margin.">
 <title>Aurivevents</title>
@@ -12,42 +12,40 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500&family=Noto+Sans+Malayalam:wght@400;500&display=swap">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 <div class="stage">
   <section class="stage-info" aria-hidden="true">
-    <div class="si-collage"><span style="background-image:url('assets/img/wedding-1.jpg')"></span><span style="background-image:url('assets/img/corporate-1.jpg')"></span><span style="background-image:url('assets/img/party-2.jpg')"></span></div>
-    <div class="si-mark"><img src="assets/icon.svg" alt=""></div>
-    <h1>Aurivevents</h1>
-    <p>Quotes, vendors, client money, crew and the run sheet — one event, one record. Built for event companies that want to know their margin.</p>
+    <div class="si-word">Aurivevents</div>
+    <p>Quotes, vendors, client money, crew and the run sheet. One event, one record — so you always know your margin.</p>
+    <div class="si-photos"><span style="background-image:url('assets/img/wedding-1.jpg')"></span><span style="background-image:url('assets/img/corporate-1.jpg')"></span><span style="background-image:url('assets/img/party-2.jpg')"></span></div>
     <ul>
       <li>Works offline, syncs to the cloud</li>
-      <li>Role-based views for owner, planner, manager and staff</li>
-      <li>English &amp; മലയാളം</li>
+      <li>Owner, planner, manager and staff views</li>
+      <li>English and മലയാളം</li>
     </ul>
-    <p class="si-foot">Web preview · mobile app coming soon</p>
+    <p class="si-foot">Web preview · Mobile app coming soon</p>
   </section>
 
   <div class="phone">
   <div class="device" id="device">
     <div class="sbar" aria-hidden="true"><span class="sb-time" id="sb-time">9:41</span><span class="sb-island"></span><span class="sb-icons"><svg viewBox="0 0 20 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.4 6.8a6.6 6.6 0 0 1 9.2 0l-1.4 1.4a4.6 4.6 0 0 0-6.4 0zM1.1 4.5a9.8 9.8 0 0 1 13.8 0l-1.4 1.4a7.8 7.8 0 0 0-11 0z"/></svg><svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="8" rx="2"/><path d="M25 4v4a2 2 0 0 0 0-4" opacity=".4"/></svg></span></div>
+
     <header class="appbar" id="appbar">
-      <button class="ab-btn" type="button" data-ui="drawer" aria-label="Open menu">
-        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-      </button>
-      <div class="ab-title"><span class="ab-brand">Aurivevents</span><span class="ab-sub" id="ab-sub"></span></div>
+      <a class="ab-word" href="#home">Aurivevents</a>
+      <span class="ab-space"></span>
       <a class="ab-btn" href="#inbox" id="ab-inbox" aria-label="Inbox">
         <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         <i class="ab-dot" hidden></i>
       </a>
-      <button class="ab-avatar" type="button" data-ui="drawer" id="ab-avatar" aria-label="Account"></button>
+      <button class="ab-avatar" type="button" data-ui="drawer" id="ab-avatar" aria-label="Account and menu"></button>
     </header>
 
     <aside class="side" id="side" aria-label="Navigation">
       <div class="side-hd">
-        <div class="brand">Aurivevents<small>KNOW YOUR MARGIN</small></div>
+        <div class="brand">Aurivevents</div>
         <button class="ab-btn" type="button" data-ui="drawer-close" aria-label="Close menu"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       </div>
       <div id="side-account"></div>
@@ -57,10 +55,10 @@
     <div class="scrim" data-ui="drawer-close"></div>
 
     <main class="main" id="scroller"><div class="wrap" id="app">
-      <div class="boot"><div class="boot-mark"><img src="assets/icon.svg" alt=""></div><div class="boot-spin"></div></div>
+      <div class="boot"><div class="boot-word">Aurivevents</div></div>
     </div></main>
 
-    <nav class="tabbar" id="tabbar"></nav>
+    <div class="dock"><span class="dock-ind" id="dock-ind"></span><nav class="tabbar" id="tabbar"></nav></div>
     <div id="modal"></div>
     <div id="toast" hidden></div>
     <div class="home-ind" aria-hidden="true"></div>
@@ -71,6 +69,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="js/config.js"></script>
 <script src="js/cloud.js"></script>
-<script>(function(){function t(){var d=new Date(),e=document.getElementById('sb-time');if(e)e.textContent=d.getHours()%12||12;if(e)e.textContent+=':'+String(d.getMinutes()).padStart(2,'0')}t();setInterval(t,15000)})();</script>
+<script>(function(){function t(){var d=new Date(),e=document.getElementById('sb-time');if(e)e.textContent=(d.getHours()%12||12)+':'+String(d.getMinutes()).padStart(2,'0')}t();setInterval(t,15000)})();</script>
 </body>
 </html>

@@ -386,25 +386,27 @@
     if (m === 'forgot') form = `<label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" value="${esc(AUTH.email || '')}">${msg}${btn('Send reset link')}`;
     else if (m === 'newpass') form = `<label for="au-pass">New password</label><div class="pw"><input id="au-pass" type="password" autocomplete="new-password" placeholder="At least 6 characters" minlength="6">${eyeBtn}</div>${msg}${btn('Save and continue')}`;
     else form = `<label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" value="${esc(AUTH.email || '')}">
-      <div class="row between" style="margin:12px 0 6px"><label for="au-pass" style="margin:0">Password</label>${m === 'signin' ? '<a href="#" id="au-forgot" class="small" style="font-weight:700">Forgot password?</a>' : ''}</div>
+      <div class="row between" style="margin:12px 0 6px"><label for="au-pass" style="margin:0">Password</label>${m === 'signin' ? '<a href="#" id="au-forgot" class="auth-forgot">Forgot password?</a>' : ''}</div>
       <div class="pw"><input id="au-pass" type="password" autocomplete="${m === 'signup' ? 'new-password' : 'current-password'}" placeholder="${m === 'signup' ? 'At least 6 characters' : 'Your password'}" minlength="6">${eyeBtn}</div>
       ${msg}${btn(m === 'signup' ? 'Create account' : 'Sign in')}`;
     $app().innerHTML = `
     <div class="auth">
-      <div class="auth-cover" style="background-image:linear-gradient(180deg,rgba(8,20,15,.15),rgba(8,20,15,.55) 70%,var(--bg)),url('assets/img/wedding-1.jpg')">
-        <div class="auth-mark"><img src="assets/icon.svg" alt=""></div>
+      <div class="auth-cover"><span class="ac-photo" style="background-image:url('assets/img/wedding-1.jpg')"></span><span class="ac-shade"></span></div>
+      <div class="auth-sheet">
+        <div class="auth-hero">
+          <div class="auth-word">Aurivevents</div>
+          <h1>${head[0]}</h1><p>${head[1]}</p>
+        </div>
+        <form id="auth-form" class="auth-form" novalidate>${form}</form>
+        ${(m === 'signin' || m === 'signup') && CFG.demo ? `<div class="auth-or"><span>or</span></div>
+        <button class="btn big auth-demo" type="button" id="au-demo" ${AUTH.busy ? 'disabled' : ''}>
+          <span class="ad-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg></span>
+          <span><span>Explore the demo</span><small>A sample event company, fully loaded</small></span>
+          <span class="ad-go"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </button>` : ''}
+        ${m === 'newpass' ? '' : `<p class="auth-switch">${m === 'signup' ? 'Already have an account?' : m === 'forgot' ? 'Remembered it?' : 'New to Aurivevents?'} <a href="#" id="au-toggle">${m === 'signin' ? 'Create an account' : 'Sign in'}</a></p>
+        <p class="auth-local"><a href="#" id="au-local">Continue without an account</a></p>`}
       </div>
-      <div class="auth-hero">
-        <h1>${head[0]}</h1><p class="muted">${head[1]}</p>
-      </div>
-      <form id="auth-form" class="auth-form" novalidate>${form}</form>
-      ${(m === 'signin' || m === 'signup') && CFG.demo ? `<div class="auth-or"><span>or</span></div>
-      <button class="btn big auth-demo" type="button" id="au-demo" ${AUTH.busy ? 'disabled' : ''}>
-        <span class="ad-ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></span>
-        <span><b>Explore the demo</b><small>A sample event company, fully loaded</small></span>
-      </button>` : ''}
-      ${m === 'newpass' ? '' : `<p class="auth-switch">${m === 'signup' ? 'Already have an account?' : m === 'forgot' ? 'Remembered it?' : 'New to Aurivevents?'} <a href="#" id="au-toggle">${m === 'signin' ? 'Create an account' : 'Sign in'}</a></p>
-      <p class="auth-local"><a href="#" id="au-local">Continue without an account</a> · data stays on this device</p>`}
     </div>`;
     wireAuth();
   }

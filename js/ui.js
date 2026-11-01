@@ -1,4 +1,4 @@
-/* ===== ui.js — mobile shell: app bar, drawer, icon tab bar ===== */
+/* ===== ui.js — mobile shell: app bar, drawer, floating dock, page transitions ===== */
 (function () {
   const ICON = {
     home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
@@ -44,7 +44,6 @@
     if (!shell) return;
     const u = me();
     // App bar
-    document.getElementById('ab-sub').innerHTML = esc(S.company.name) + (S.sample ? ' <span class="ab-tag">Sample</span>' : '');
     document.getElementById('ab-avatar').textContent = initials(u && u.name);
     const n = unread(); const dot = document.querySelector('#ab-inbox .ab-dot'); if (dot) dot.hidden = !n;
     // Tab bar with icons
@@ -57,6 +56,7 @@
       a.innerHTML = `<span class="ti">${svg(key)}${c ? `<b class="tb">${c === '•' ? '' : esc(c)}</b>` : ''}</span><span class="tl">${esc(label)}</span>`;
       a.dataset.dec = '1';
     });
+    moveDockIndicator();
     // Drawer footer: cloud account, company switcher, team access
     const foot = document.getElementById('side-account');
     const C = window.AURIV_CLOUD;
@@ -65,7 +65,7 @@
       const owner = sh ? sh.owner_id === C.user.id : (u && u.role === 'owner' && !S.sample);
       foot.innerHTML = (`<div class="cloud-card">
         <div class="cc-row"><span class="cc-dot"></span><span id="cloud-state">${C.state === 'saving' ? 'Syncing…' : C.state === 'offline' ? 'Offline — will sync later' : 'Synced to cloud'}</span></div>
-        <div class="cc-mail">${esc(C.user.email)}${C.isDemo() ? ' <span class="ab-tag">Demo</span>' : ''}</div>
+        <div class="cc-mail">${esc(C.user.email)}${C.isDemo() ? ' · demo account' : ''}</div>
         <label for="ui-ws" class="cc-lbl">Company</label>
         <select id="ui-ws" data-ui-ws>${ws.map(x => `<option value="${esc(x.id)}" ${x.id === WS ? 'selected' : ''}>${esc(x.name)}${C.shared.some(s => s.local_id === x.id) ? ' · team' : ''}</option>`).join('')}</select>
         <div class="row" style="gap:6px">
@@ -126,6 +126,48 @@
     });
   }
 
+  /* ---------- floating dock: sliding indicator ---------- */
+  function moveDockIndicator() {
+    const ind = document.getElementById('dock-ind'), tb = document.getElementById('tabbar'); if (!ind || !tb) return;
+    const on = tb.querySelector('a.on');
+    if (!on) { ind.style.opacity = '0'; return }
+    ind.style.opacity = '1';
+    requestAnimationFrame(() => { ind.style.width = on.offsetWidth + 'px'; ind.style.transform = `translateX(${on.offsetLeft}px)` });
+  }
+
+  /* ---------- page transitions ---------- */
+  const TAB_ORDER = ['home', 'events', 'mytasks', 'approvals', 'more'];
+  let lastRoute = null, lastHash = null;
+  function transition() {
+    let r = ''; try { r = route() } catch (e) {}
+    const h = location.hash;
+    const app = document.getElementById('app'); if (!app) return;
+    if (h === lastHash) { lastRoute = r; return }
+    let cls = 'pg-tab';
+    if (r === 'event' && lastRoute !== 'event') cls = 'pg-fwd';
+    else if (lastRoute === 'event' && r !== 'event') cls = 'pg-back';
+    else if (TAB_ORDER.includes(r) && TAB_ORDER.includes(lastRoute)) cls = TAB_ORDER.indexOf(r) > TAB_ORDER.indexOf(lastRoute) ? 'pg-fwd' : 'pg-back';
+    if (lastHash === null) cls = 'pg-tab';
+    lastRoute = r; lastHash = h;
+    [...app.children].slice(0, 14).forEach((c, i) => c.style.setProperty('--i', i));
+    app.classList.remove('pg-fwd', 'pg-back', 'pg-tab', 'pg-in'); void app.offsetWidth;
+    app.classList.add(cls, 'pg-in');
+    clearTimeout(transition.t); transition.t = setTimeout(() => app.classList.remove('pg-fwd', 'pg-back', 'pg-tab', 'pg-in'), 1300);
+  }
+
+  /* ---------- bottom sheets: animate out, hide dock while open ---------- */
+  const _close = closeModal;
+  closeModal = function () {
+    const bg = document.querySelector('#modal .modal-bg');
+    if (bg && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const ghost = bg.cloneNode(true); ghost.classList.add('modal-ghost'); ghost.removeAttribute('data-act');
+      ghost.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+      dev().insertBefore(ghost, document.getElementById('modal')); setTimeout(() => ghost.remove(), 320);
+    }
+    return _close.apply(this, arguments);
+  };
+  new MutationObserver(() => dev().classList.toggle('modal-open', !!document.querySelector('#modal .modal'))).observe(document.getElementById('modal'), { childList: true });
+
   const _render = render;
-  render = function () { const r = _render.apply(this, arguments); try { decorate() } catch (e) { console.error(e) } try { if (window.AURIV_VISUAL && !dev().classList.contains('no-shell')) AURIV_VISUAL.enhance() } catch (e) { console.error(e) } return r };
+  render = function () { const r = _render.apply(this, arguments); try { decorate() } catch (e) { console.error(e) } try { if (window.AURIV_VISUAL && !dev().classList.contains('no-shell')) AURIV_VISUAL.enhance() } catch (e) { console.error(e) } try { transition() } catch (e) {} return r };
 })();
