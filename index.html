@@ -18,6 +18,7 @@
 <body>
 <div class="stage">
   <section class="stage-info" aria-hidden="true">
+    <div class="si-collage"><span style="background-image:url('assets/img/wedding-1.jpg')"></span><span style="background-image:url('assets/img/corporate-1.jpg')"></span><span style="background-image:url('assets/img/party-2.jpg')"></span></div>
     <div class="si-mark"><img src="assets/icon.svg" alt=""></div>
     <h1>Aurivevents</h1>
     <p>Quotes, vendors, client money, crew and the run sheet — one event, one record. Built for event companies that want to know their margin.</p>
@@ -29,7 +30,9 @@
     <p class="si-foot">Web preview · mobile app coming soon</p>
   </section>
 
+  <div class="phone">
   <div class="device" id="device">
+    <div class="sbar" aria-hidden="true"><span class="sb-time" id="sb-time">9:41</span><span class="sb-island"></span><span class="sb-icons"><svg viewBox="0 0 20 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.4 6.8a6.6 6.6 0 0 1 9.2 0l-1.4 1.4a4.6 4.6 0 0 0-6.4 0zM1.1 4.5a9.8 9.8 0 0 1 13.8 0l-1.4 1.4a7.8 7.8 0 0 0-11 0z"/></svg><svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="8" rx="2"/><path d="M25 4v4a2 2 0 0 0 0-4" opacity=".4"/></svg></span></div>
     <header class="appbar" id="appbar">
       <button class="ab-btn" type="button" data-ui="drawer" aria-label="Open menu">
         <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
@@ -60,11 +63,14 @@
     <nav class="tabbar" id="tabbar"></nav>
     <div id="modal"></div>
     <div id="toast" hidden></div>
+    <div class="home-ind" aria-hidden="true"></div>
+  </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="js/config.js"></script>
 <script src="js/cloud.js"></script>
+<script>(function(){function t(){var d=new Date(),e=document.getElementById('sb-time');if(e)e.textContent=d.getHours()%12||12;if(e)e.textContent+=':'+String(d.getMinutes()).padStart(2,'0')}t();setInterval(t,15000)})();</script>
 </body>
 </html>

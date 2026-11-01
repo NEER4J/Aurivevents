@@ -127,5 +127,5 @@
   }
 
   const _render = render;
-  render = function () { const r = _render.apply(this, arguments); try { decorate() } catch (e) { console.error(e) } return r };
+  render = function () { const r = _render.apply(this, arguments); try { decorate() } catch (e) { console.error(e) } try { if (window.AURIV_VISUAL && !dev().classList.contains('no-shell')) AURIV_VISUAL.enhance() } catch (e) { console.error(e) } return r };
 })();

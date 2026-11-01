@@ -17,7 +17,7 @@
   const APP_SCRIPTS = ['core', 'x00_framework', 'x01_access', 'x02_data', 'x03_fixes', 'x04_scope', 'x05_vendors',
     'x06_sales', 'x07_finance', 'x08_crew', 'x09_eventday', 'x10_usability', 'x11_reporting', 'x12_guests',
     'x13_production', 'x14_about', 'x15_v56', 'x16_about56', 'x17_v57', 'x18_v58', 'x19_v59', 'x20_v510',
-    'ui', 'x99_boot'];
+    'ui', 'visual', 'x99_boot'];
 
   const initialHash = location.hash || '';
   const recovering = /type=recovery/.test(initialHash);
@@ -391,8 +391,10 @@
       ${msg}${btn(m === 'signup' ? 'Create account' : 'Sign in')}`;
     $app().innerHTML = `
     <div class="auth">
-      <div class="auth-hero">
+      <div class="auth-cover" style="background-image:linear-gradient(180deg,rgba(8,20,15,.15),rgba(8,20,15,.55) 70%,var(--bg)),url('assets/img/wedding-1.jpg')">
         <div class="auth-mark"><img src="assets/icon.svg" alt=""></div>
+      </div>
+      <div class="auth-hero">
         <h1>${head[0]}</h1><p class="muted">${head[1]}</p>
       </div>
       <form id="auth-form" class="auth-form" novalidate>${form}</form>
