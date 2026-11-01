@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F5F4F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1311" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="Aurivevents — run events end to end and know your margin.">
+<title>Aurivevents</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="stage">
+  <section class="stage-info" aria-hidden="true">
+    <div class="si-mark"><img src="assets/icon.svg" alt=""></div>
+    <h1>Aurivevents</h1>
+    <p>Quotes, vendors, client money, crew and the run sheet — one event, one record. Built for event companies that want to know their margin.</p>
+    <ul>
+      <li>Works offline, syncs to the cloud</li>
+      <li>Role-based views for owner, planner, manager and staff</li>
+      <li>English &amp; മലയാളം</li>
+    </ul>
+    <p class="si-foot">Web preview · mobile app coming soon</p>
+  </section>
+
+  <div class="device" id="device">
+    <header class="appbar" id="appbar">
+      <button class="ab-btn" type="button" data-ui="drawer" aria-label="Open menu">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+      <div class="ab-title"><span class="ab-brand">Aurivevents</span><span class="ab-sub" id="ab-sub"></span></div>
+      <a class="ab-btn" href="#inbox" id="ab-inbox" aria-label="Inbox">
+        <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <i class="ab-dot" hidden></i>
+      </a>
+      <button class="ab-avatar" type="button" data-ui="drawer" id="ab-avatar" aria-label="Account"></button>
+    </header>
+
+    <aside class="side" id="side" aria-label="Navigation">
+      <div class="side-hd">
+        <div class="brand">Aurivevents<small>KNOW YOUR MARGIN</small></div>
+        <button class="ab-btn" type="button" data-ui="drawer-close" aria-label="Close menu"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <nav class="nav" id="nav"></nav>
+      <div class="foot" id="sidefoot"></div>
+    </aside>
+    <div class="scrim" data-ui="drawer-close"></div>
+
+    <main class="main" id="scroller"><div class="wrap" id="app">
+      <div class="boot"><div class="boot-mark"><img src="assets/icon.svg" alt=""></div><div class="boot-spin"></div></div>
+    </div></main>
+
+    <nav class="tabbar" id="tabbar"></nav>
+    <div id="modal"></div>
+    <div id="toast" hidden></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/cloud.js"></script>
+</body>
+</html>

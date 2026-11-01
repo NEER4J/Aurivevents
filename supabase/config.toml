@@ -1,0 +1,19 @@
+project_id = "qbtuodsyoqitukxqlptc"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+major_version = 15
+
+[auth]
+enabled = true
+site_url = "https://neer4j.github.io/Aurivevents/"
+additional_redirect_urls = ["http://localhost:8080"]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true

@@ -1,0 +1,7 @@
+/* ===== x20_v510.js ===== */
+/* v5.10 LAYER 20 — one correction from the third 1 Nov audit (M1): a confirmation dialog re-authorises with the same context as the request, so own-record rules (end my own session) hold at the confirm step. Nothing else. */
+MIGRATIONS.push({from:59,to:510,note:'v5.9 → v5.10: no data changes; confirm-step authorisation carries the request context.',up(o){ensureCollections(o);return o}});
+FEATURE_MAP.push(['18 · v5.10 — final correction',[['Confirm step keeps its context','real (browser)','A dialog opened by an action re-checks that action with the same record id; non-owners can end their own session again','All']]]);
+CHANGELOG.unshift(['v5.10 (this build)','Audit M1 closed: the confirm dialog re-authorises with the request context, so own-record rules hold at the confirm step. Two things found while fixing it: the click context now lives only for that click (a dialog opened later by script, or by an async path, has no action to inherit and is owner-only), and owner checks require a live session. Every finding from the 31 Oct and 1 Nov audits is now closed. Last artifact build; the policy table, token links, audit shape and invariants go to the server.']);
+const _vBuild59=vBuild;vBuild=function(){return _vBuild59().replace('v5.9 is v5.8 with six rule corrections from the second 1 Nov audit. Nothing else; the next build is the server.','v5.10 is the final reference build: every audit finding closed. The next build is the server.').replace('across 17 sections','across 18 sections')};
+
