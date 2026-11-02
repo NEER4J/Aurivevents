@@ -17,7 +17,7 @@
   const APP_SCRIPTS = ['core', 'x00_framework', 'x01_access', 'x02_data', 'x03_fixes', 'x04_scope', 'x05_vendors',
     'x06_sales', 'x07_finance', 'x08_crew', 'x09_eventday', 'x10_usability', 'x11_reporting', 'x12_guests',
     'x13_production', 'x14_about', 'x15_v56', 'x16_about56', 'x17_v57', 'x18_v58', 'x19_v59', 'x20_v510',
-    'simple', 'help', 'ui', 'visual', 'x99_boot'];
+    'simple', 'help', 'search', 'ui', 'visual', 'x99_boot'];
 
   const initialHash = location.hash || '';
   const recovering = /type=recovery/.test(initialHash);

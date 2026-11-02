@@ -142,5 +142,5 @@
   window.PAGES_EXT = window.PAGES_EXT || {};
   PAGES_EXT.help = vHelp;
   NAV_EXT.push(n => { if (!n.some(x => x[0] === 'help')) n.push(['help', 'Help', '']) });
-  window.AURIV_HELP = { vHelp };
+  window.AURIV_HELP = { vHelp, faq: () => FAQ() };
 })();

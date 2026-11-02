@@ -898,3 +898,43 @@ html.simple #f-event :is(label[for="epl"],.sel:has(#epl),.two:has(#epr),label.ch
 .help-ok{font-size:14px;color:var(--muted)}
 .help-foot{text-align:center;color:var(--muted);font-size:13.5px;margin:22px 10px 4px}
 .es-link{display:block;margin-top:14px;font-size:14px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- search everything ---------- */
+html.simple #ab-inbox{display:none}
+.search-ov{position:absolute;inset:0;z-index:85;background:var(--bg);display:flex;flex-direction:column;opacity:0;transform:translateY(12px);transition:opacity .25s ease,transform .35s var(--ease)}
+.search-ov.in{opacity:1;transform:none}
+.search-ov.out{opacity:0;transform:translateY(8px);transition-duration:.2s}
+.so-bar{flex:none;display:flex;align-items:center;gap:10px;padding:calc(var(--sb) + 10px + env(safe-area-inset-top,0px)) 16px 10px}
+.so-field{flex:1;display:flex;align-items:center;gap:10px;background:var(--panel);border-radius:999px;padding:0 16px;height:48px;margin:0;color:var(--muted);border:1px solid transparent}
+.so-field:focus-within{border-color:var(--ink)}
+.so-field svg{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.so-field input{border:0;background:none!important;min-height:0;padding:0;height:100%;font-size:16px;color:var(--ink)}
+.so-field input:focus{border:0}
+.so-field input::-webkit-search-cancel-button{-webkit-appearance:none}
+.so-cancel{border:0;background:none;font:inherit;font-size:15px;color:var(--ink);cursor:pointer;padding:8px 2px}
+.so-body{flex:1;overflow-y:auto;padding:4px 16px 40px;scrollbar-width:none;overscroll-behavior:contain}
+.so-count{font-size:13px;color:var(--muted);margin:4px 4px 2px}
+.so-g{background:var(--panel);border-radius:22px;padding:6px;margin-top:12px;animation:rise .3s var(--ease) both}
+.so-h{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 6px;font-size:13px;color:var(--muted)}
+.so-n{font-size:12px;background:var(--fill);border-radius:999px;padding:1px 8px}
+.so-clear{border:0;background:none;color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.so-row,.so-recent{width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;padding:10px;border-radius:16px;cursor:pointer;transition:background-color .15s}
+.so-row:hover,.so-recent:hover,.so-row:focus-visible{background:var(--fill);outline:none}
+.so-row > svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.so-ic{width:38px;height:38px;border-radius:12px;background:var(--fill);display:flex;align-items:center;justify-content:center;flex:none}
+.so-ic svg{width:19px;height:19px;fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.so-tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.so-t{font-size:15px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.so-s{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.so-row.void .so-t{text-decoration:line-through;color:var(--muted)}
+.so-row mark,.so-recent mark{background:none;color:var(--ink);font-weight:500;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:2px}
+.so-s mark{color:var(--ink)}
+.so-recent svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round}
+.so-more{width:100%;border:0;background:none;color:var(--ink);font:inherit;font-size:14px;padding:10px;border-radius:14px;cursor:pointer}
+.so-chips{display:flex;flex-wrap:wrap;gap:8px;padding:2px 8px 10px}
+.so-chip{border:0;background:var(--fill);color:var(--ink);font:inherit;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer}
+.so-tip{font-size:13px;color:var(--muted);text-align:center;margin:20px 16px}
+.so-empty{text-align:center;padding:48px 16px}
+.ab-search svg{width:20px!important;height:20px!important}
+.card.flash{animation:flash 1.4s ease}
+@keyframes flash{0%,40%{background:var(--fill-2)}100%{background:var(--panel)}}
