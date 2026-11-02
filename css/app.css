@@ -696,3 +696,15 @@ html.auth-mode .main{overscroll-behavior:none}
 .login-back{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--panel);color:var(--ink);font:inherit;font-size:14.5px;font-weight:500;padding:9px 16px 9px 10px;border-radius:999px;margin:0 0 12px;cursor:pointer;transition:transform .18s var(--ease)}
 .login-back:active{transform:scale(.96)}
 .login-back svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- form rhythm: one consistent vertical spacing ---------- */
+label{margin:18px 0 8px}
+form > label:first-child,form > p + label,.modal .hd + form > label:first-child{margin-top:8px}
+:is(form,.modal,.card) :is(input:not([type=checkbox]):not([type=radio]),textarea,.sel,.two,.grid,.chips,.row,div:has(> .two),div:has(> input)) + :is(input:not([type=checkbox]):not([type=radio]),textarea,.sel,.two,.grid,.chips,div:has(> .two),div:has(> input)){margin-top:12px}
+:is(form,.modal) .grid > div > label:first-child,:is(form,.modal) .two > div > label:first-child{margin-top:18px}
+.modal form > .grid,.modal form > .two{gap:0 12px}
+.help + :is(input,.sel,.two,label){margin-top:14px}
+:is(form,.modal,.card) :is(.grid,.two,div):is(:has(> label:first-child),:has(> div:first-child > label:first-child)){margin-top:0!important}
+#app.no-anim *,#app.no-anim{animation:none!important}
+#app.no-anim .appear{animation:rise .4s var(--ease) both!important}
+.side{border-radius:0!important}

@@ -38,7 +38,7 @@
     if (sel.id) btn.setAttribute('aria-labelledby', sel.id);
     btn.innerHTML = `<span class="sel-val"></span>${chev}`;
     wrap.appendChild(btn);
-    const sync = () => { const v = label(sel); btn.querySelector('.sel-val').textContent = v || 'Select…'; btn.classList.toggle('empty', !sel.value); btn.disabled = sel.disabled };
+    const sync = () => { const v = label(sel); btn.querySelector('.sel-val').textContent = v || 'Select…'; btn.classList.toggle('empty', !v); btn.disabled = sel.disabled };
     sync();
     sel.addEventListener('change', sync);
     btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openPicker(sel, sync) });

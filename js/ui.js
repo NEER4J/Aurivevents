@@ -170,4 +170,39 @@
 
   const _render = render;
   render = function () { const r = _render.apply(this, arguments); try { decorate() } catch (e) { console.error(e) } try { if (window.AURIV_VISUAL && !dev().classList.contains('no-shell')) AURIV_VISUAL.enhance() } catch (e) { console.error(e) } try { transition() } catch (e) {} return r };
+
+  /* In-place updates (same screen: show all/fewer, ticking, filters) keep the scroll position,
+     skip entry animations, and only fade in what is new. */
+  let prevHash = null, lastTap = null;
+  document.addEventListener('click', e => { lastTap = { el: e.target, at: Date.now() } }, true);
+  function anchorInfo(app) {
+    if (!lastTap || Date.now() - lastTap.at > 1000 || !app.contains(lastTap.el)) return null;
+    const t = lastTap.el.closest('[data-act]') || lastTap.el;
+    const cards = [...app.querySelectorAll('.card')]; const card = t.closest('.card');
+    return { act: t.dataset && t.dataset.act, idx: card ? cards.indexOf(card) : -1, off: t.getBoundingClientRect().top };
+  }
+  function restoreAnchor(app, sc, a) {
+    if (!a) return;
+    const card = a.idx >= 0 ? app.querySelectorAll('.card')[a.idx] : null;
+    const el = (card && a.act && card.querySelector(`[data-act="${a.act}"]`)) || (a.act && app.querySelector(`[data-act="${a.act}"]`)) || null;
+    if (el) sc.scrollTop += el.getBoundingClientRect().top - a.off;
+  }
+  const keyOf = el => (el.dataset.id || '') + '|' + el.textContent.replace(/\s+/g, ' ').trim().slice(0, 80);
+  const _renderTop = render;
+  render = function () {
+    const app = document.getElementById('app'), sc = document.getElementById('scroller');
+    const same = prevHash !== null && location.hash === prevHash; prevHash = location.hash;
+    const top = sc ? sc.scrollTop : 0;
+    const anchor = same && app ? anchorInfo(app) : null;
+    const before = same && app ? new Set([...app.querySelectorAll('.item, .card, .evcard, tr')].map(keyOf)) : null;
+    const r = _renderTop.apply(this, arguments);
+    if (same && app) {
+      if (sc) { sc.scrollTop = top; restoreAnchor(app, sc, anchor) }
+      app.classList.add('no-anim');
+      [...app.querySelectorAll('.item, .card, .evcard, tr')].forEach(el => { if (!before.has(keyOf(el)) && !el.parentElement.closest('.appear')) el.classList.add('appear') });
+      clearTimeout(render.t); render.t = setTimeout(() => { app.classList.remove('no-anim'); app.querySelectorAll('.appear').forEach(e => e.classList.remove('appear')) }, 700);
+    }
+    return r;
+  };
+
 })();
