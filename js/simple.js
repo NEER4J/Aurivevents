@@ -405,6 +405,21 @@
       const q = app.querySelector('#vq'); if (q) { q.placeholder = 'Search vendors'; const l = app.querySelector('label[for="vq"]'); if (l) l.remove() }
       app.querySelectorAll(':scope > .muted, :scope > div > .muted').forEach(m => { if (/^No vendors match/.test(m.textContent.trim()) && !S.vendors.length) m.outerHTML = '<div class="card empty-state"><div class="es-t">No vendors yet</div><div class="es-s">Everyone you pay — decorator, caterer, photographer. Saved once, reused on every event, with what you paid them each time.</div><button class="btn pri" data-act="add-dir-vendor">+ Add vendor</button></div>' });
     }
+    if (r === 'vendors') app.querySelectorAll('.card:not([data-vd])').forEach(card => {
+      const eb = card.querySelector(':scope > .row.between > [data-act="edit-dir-vendor"]'); if (!eb) return;
+      const v = S.vendors.find(x => x.id === eb.dataset.id); if (!v) return;
+      card.dataset.vd = '1';
+      const cms = S.commitments.filter(c => c.vendorId === v.id && c.status === 'agreed' && !c.voided);
+      const n = new Set(cms.map(c => c.eventId)).size, avg = cms.length ? Math.round(sum(cms, c => c.agreedPaise) / cms.length) : 0;
+      const owed = sum(cms, c => Math.max(0, commCalc(c).outstanding));
+      const head = eb.parentElement;
+      head.classList.add('vd-head');
+      head.innerHTML = `<div class="vd-main"><span class="t">${esc(v.name)}</span><div class="vd-sub"><span class="pill grey">${esc(v.category || 'Other')}</span>${v.phone ? `<span>${esc(v.phone)}</span>` : ''}</div></div>`;
+      head.appendChild(eb);
+      head.insertAdjacentHTML('afterend', `<div class="vd-stats"><div><span>Events</span><b class="num">${n}</b></div><div><span>Avg agreed</span><b class="num">${n ? inr(avg) : '—'}</b></div><div><span>Owed now</span><b class="num">${inr(owed)}</b></div></div>`);
+      card.querySelectorAll(':scope > .chips').forEach(c => { if (!c.textContent.trim()) c.remove() });
+      const list = card.querySelector(':scope > .list'); if (list && list.children.length) list.insertAdjacentHTML('beforebegin', '<div class="vd-label">Events with them</div>');
+    });
     if (r === 'vendors') app.querySelectorAll('.pill').forEach(p => { if (/^(performance:|verified|not verified|.*licence)/i.test(p.textContent.trim())) p.remove() });
   }
 

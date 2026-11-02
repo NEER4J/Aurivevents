@@ -842,3 +842,16 @@ html.simple .card:has(> .two.one > div > #vq){padding:0;background:none}
 .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 /* no empty dock while the app is loading */
 .dock:not(:has(#tabbar a)){display:none}
+
+/* vendor directory cards */
+.vd-head{flex-wrap:nowrap!important;align-items:center!important;gap:14px!important}
+.vd-main{flex:1;min-width:0}
+.vd-main .t{display:block;font-size:17px!important;line-height:1.25}
+.vd-sub{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;margin-top:4px;font-size:13.5px;color:var(--muted)}
+.vd-sub .pill{font-size:12px;padding:2px 9px}
+.vd-head > .btn{flex:none;align-self:center}
+.vd-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:var(--fill);border-radius:16px;padding:12px 14px;margin:14px 0 4px}
+.vd-stats span{display:block;font-size:12px;color:var(--muted)}
+.vd-stats b{font-size:15.5px;font-weight:500;white-space:nowrap}
+.vd-label{font-size:13px;color:var(--muted);margin:14px 0 2px}
+.card[data-vd] > .list .item:first-child{padding-top:8px!important}
