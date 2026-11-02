@@ -120,6 +120,51 @@
     });
   }
 
+  /* ---------- tidy: action groups go on their own line, left-aligned ----------
+     The app often puts buttons/tags in a right-hand column next to text; on a phone that
+     reads as scattered. Any such group (2+ buttons, any tags, or a row with a thumbnail)
+     moves under the content. A single button next to a title stays on the right. */
+  const isCtl = el => el.matches('.btn,.pill,.tag,.sel,a.btn,button,select,input[type=checkbox]');
+  function tidy(root) {
+    root.querySelectorAll('.row.between:not([data-tidy])').forEach(row => {
+      row.dataset.tidy = '1';
+      if (row.closest('.ev-hero,.sec-label,.pg-head,.appbar,.tabs')) return;
+      const kids = [...row.children]; if (kids.length < 2) return;
+      const last = kids[kids.length - 1];
+      const ctls = last.matches('.btn,button') ? [last] : [...last.children];
+      if (!ctls.length || !ctls.every(isCtl)) return;
+      const btns = ctls.filter(c => c.matches('.btn,button,a.btn')).length;
+      const tags = ctls.some(c => c.matches('.pill,.tag'));
+      const thumb = !!row.querySelector(':scope > .row > .thumb, :scope > .thumb');
+      if (btns >= 2 || tags || thumb) {
+        row.classList.add('stack-acts'); if (last !== kids[0]) last.classList.add('acts');
+        if (thumb) row.classList.add('has-thumb');
+      }
+    });
+    // placeholder thumbnails ("—", "no bill") become a quiet document tile
+    root.querySelectorAll('div.thumb:not([data-tidy])').forEach(t => { t.dataset.tidy = '1'; if (!t.querySelector('img')) t.classList.add('thumb-empty') });
+  }
+
+  /* ---------- calendar: date column + day's items, one clean list ---------- */
+  function enhanceCalendar(app) {
+    const st = [...app.querySelectorAll(':scope > .stack')].find(s => s.querySelector(':scope > .card > .small:first-child'));
+    if (!st || st.classList.contains('cal-agenda')) return;
+    st.classList.add('cal-agenda');
+    const todayN = new Date().getDate();
+    [...st.children].forEach(card => {
+      const head = card.firstElementChild; if (!head) return;
+      const num = (head.childNodes[0] && head.childNodes[0].textContent || '').trim();
+      const wd = head.querySelector('.muted') ? head.querySelector('.muted').textContent.trim() : '';
+      const isToday = /accent/.test(card.getAttribute('style') || '');
+      card.removeAttribute('style'); card.className = 'cal-day' + (isToday ? ' today' : '');
+      const body = document.createElement('div'); body.className = 'cd-body';
+      [...card.children].slice(1).forEach(c => { c.removeAttribute('style'); if (c.dataset.act === 'open-event') c.className = 'cd-ev'; else c.classList.add('cd-line'); body.appendChild(c) });
+      card.innerHTML = `<div class="cd-date"><b>${esc(num)}</b><span>${esc(wd)}</span></div>`;
+      card.appendChild(body);
+    });
+    const head = app.querySelector(':scope > .pg-head'); if (head) head.classList.add('cal-head');
+  }
+
   function enhance() {
     const app = document.getElementById('app'); if (!app) return;
     let r = ''; try { r = route() } catch (e) {}
@@ -127,9 +172,58 @@
     if (r === 'home' && me() && me().role !== 'accountant') enhanceHome(app);
     if (r === 'event') enhanceEvent(app);
     if (r === 'vendors') enhanceVendors(app);
+    if (r === 'calendar') enhanceCalendar(app);
     enhanceTitles(app);
+    tidy(app);
     document.getElementById('device').dataset.route = r;
   }
 
-  window.AURIV_VISUAL = { enhance, evImg, vImg };
+  /* ---------- in-app sign-in (phone + code): clear hierarchy ---------- */
+  function tidyLogin() {
+    const card = document.querySelector('#app .login > .card'); if (!card || card.dataset.tidy) return;
+    card.dataset.tidy = '1'; card.classList.add('login-card');
+    // workspace picker row: select full width, actions as a small row under it
+    const wsRow = card.querySelector('.row:has(#wssel)'); if (wsRow) wsRow.classList.add('login-ws');
+    // the long list of sample phone numbers folds away
+    card.querySelectorAll('.help').forEach(h => {
+      if (/Team members of/.test(h.textContent)) {
+        const d = document.createElement('details'); d.className = 'login-team';
+        d.innerHTML = '<summary>Sample team phone numbers</summary>';
+        const box = document.createElement('div'); box.className = 'help';
+        box.innerHTML = h.innerHTML.replace(/^[^:]*:\s*/, '').replace(/<span class="pill[^>]*>sample<\/span>/, '');
+        box.innerHTML = box.innerHTML.split(' · ').reduce((a, x, i, arr) => i % 2 ? a : a.concat(`<div class="lt-row"><span>${x}</span><span>${arr[i + 1] || ''}</span></div>`), []).join('');
+        d.appendChild(box); h.replaceWith(d);
+      }
+    });
+    // footer actions: primary full width first, the rest as quiet text links
+    card.querySelectorAll('form .ft').forEach(ft => {
+      ft.classList.add('login-ft');
+      const pri = ft.querySelector('.btn.pri'); if (pri) { pri.classList.add('big'); ft.prepend(pri) }
+      const rest = [...ft.querySelectorAll('.btn:not(.pri)')];
+      if (rest.length) { const links = document.createElement('div'); links.className = 'login-links'; rest.forEach(b => { b.classList.add('link'); links.appendChild(b) }); ft.appendChild(links) }
+    });
+    // walkthrough shortcut becomes a clean card
+    const note = card.querySelector('.note:has([data-act="login-sample"])');
+    if (note) {
+      const btn = note.querySelector('[data-act="login-sample"]');
+      note.className = 'login-sample'; note.removeAttribute('style');
+      note.innerHTML = '<div class="ls-t">Just exploring?</div><div class="ls-s">Open the sample company as Priya, its owner. Real sign-in is above.</div>';
+      btn.className = 'btn big'; note.appendChild(btn);
+    }
+    const foot = card.querySelector(':scope > .meta:last-child'); if (foot) foot.classList.add('login-foot');
+    // back to the account sign-in (this screen is the device-only mode)
+    const C = window.AURIV_CLOUD;
+    if (C && C.enabled && !C.user && !card.parentElement.querySelector('.login-back')) {
+      const back = document.createElement('button'); back.type = 'button'; back.className = 'login-back';
+      back.innerHTML = '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><span>Sign in with an account</span>';
+      back.addEventListener('click', () => { sessionStorage.removeItem('auriv.localOnly'); location.replace(location.pathname) });
+      card.parentElement.insertBefore(back, card);
+    }
+  }
+  const _renderLogin = renderLogin;
+  renderLogin = function () { const r = _renderLogin.apply(this, arguments); try { tidyLogin() } catch (e) { console.error(e) } return r };
+
+  window.AURIV_VISUAL = { enhance, evImg, vImg, tidy };
+  // sheets open without a re-render: tidy them as they appear
+  new MutationObserver(() => { const m = document.querySelector('#modal .modal'); if (m) tidy(m) }).observe(document.getElementById('modal'), { childList: true, subtree: true });
 })();
