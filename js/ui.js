@@ -73,6 +73,7 @@
           <button class="btn sm" data-act="ws-new">+ New company</button>
           ${sh && !owner ? '<button class="btn sm danger" data-ui-act="leave">Leave</button>' : ''}
           ${C.isDemo() ? '<button class="btn sm" data-ui-act="reset-demo">Reset demo</button>' : ''}
+          <button class="btn sm" data-ui-act="signout">Sign out</button>
         </div></div>`);
     }
   }
@@ -86,6 +87,7 @@
     if (a === 'reset-demo') { if (confirm('Reset the demo company back to its sample data?')) C.resetDemo(); return }
     if (a === 'leave') { if (confirm('Leave ' + S.company.name + '? You will lose access until the owner invites you again.')) C.leave(); return }
     if (a === 'team') { closeDrawer(); teamModal(); return }
+    if (a === 'signout') { b.disabled = true; b.textContent = 'Signing out…'; C.signOut(); return }
     if (a === 'share-now') { b.disabled = true; b.textContent = 'Sharing…'; C.shareCurrent().then(() => { toast('Company shared'); teamModal() }).catch(err => { b.disabled = false; b.textContent = 'Share this company'; toast(err.message) }); return }
     if (a === 'rm-member') { if (!confirm('Remove ' + b.dataset.email + ' from this company?')) return; C.removeMember(b.dataset.email).then(() => { toast('Removed'); teamModal() }).catch(err => toast(err.message)); return }
     if (a === 'copy-link') { const t = location.origin + location.pathname; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Link copied'), () => prompt('Copy this link', t)) }

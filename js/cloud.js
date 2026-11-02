@@ -88,6 +88,8 @@
 
   function afterReady() {
     if (!CLOUD.user) return;
+    const pending = sessionStorage.getItem(SETUP);
+    if (pending) { sessionStorage.removeItem(SETUP); try { createCompany(JSON.parse(pending)); CLOUD.firstRun = true; setTimeout(() => { try { toast('Your company is ready') } catch (e) {} }, 400) } catch (e) { console.error('setup', e) } }
     const _render = render;
     render = function () { ensureSession(); return _render.apply(this, arguments) };
     if (typeof ACTS === 'object') ACTS['signout'] = () => signOut();
@@ -464,7 +466,66 @@
     }
     sessionStorage.removeItem(LOCAL_ONLY);
     if (!location.hash || location.hash === '#' || /access_token|type=/.test(location.hash)) history.replaceState(null, '', location.pathname + '#home');
+    if (needsSetup()) return renderSetup();
     loadApp();
+  }
+
+  /* ---------------- first run for a real account: set up your own company ---------------- */
+  const SETUP = 'auriv.setup', SKIP = 'auriv.setupSkip';
+  function needsSetup() {
+    if (!CLOUD.user || CLOUD.isDemo() || CLOUD.shared.length || sessionStorage.getItem(SKIP)) return false;
+    let list = []; try { list = JSON.parse(lsGet(WS_LIST) || '[]') } catch (e) {}
+    return !list.length || (list.length === 1 && list[0].id === 'ws_sample');
+  }
+  function renderSetup(msg) {
+    document.documentElement.classList.add('auth-mode');
+    const guess = (CLOUD.user.email || '').split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    $app().innerHTML = `
+    <div class="auth">
+      <div class="auth-cover"><span class="ac-photo" style="background-image:url('assets/img/corporate-4.jpg')"></span><span class="ac-shade"></span></div>
+      <div class="auth-sheet">
+        <div class="auth-hero"><div class="auth-word">${esc(CLOUD.user.email)}</div><h1>Set up your company</h1><p>Your own workspace, empty and ready. Nothing from the sample is copied.</p></div>
+        <form id="setup-form" class="auth-form" novalidate>
+          <label for="su-co">Company name</label><input id="su-co" placeholder="e.g. Kochi Celebrations" autocomplete="organization">
+          <label for="su-name">Your name</label><input id="su-name" value="${esc(guess)}" autocomplete="name">
+          <label for="su-phone">Your phone <span class="muted">(optional)</span></label><input id="su-phone" inputmode="tel" placeholder="+91 98470 00000" autocomplete="tel">
+          ${msg ? `<div class="auth-msg bad">${esc(msg)}</div>` : ''}
+          <button class="btn pri big" type="submit">Create my company</button>
+        </form>
+        <p class="auth-switch">Want to look around first? <a href="#" id="su-sample">Open the sample company</a></p>
+        <p class="auth-local"><a href="#" id="su-out">Sign out</a></p>
+      </div>
+    </div>`;
+    document.getElementById('setup-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const co = document.getElementById('su-co').value.trim(), name = document.getElementById('su-name').value.trim(), phone = document.getElementById('su-phone').value.trim();
+      if (!co) return renderSetup('Enter your company name.');
+      if (!name) return renderSetup('Enter your name.');
+      sessionStorage.setItem(SETUP, JSON.stringify({ co, name, phone }));
+      $app().innerHTML = '<div class="boot"><div class="boot-word">Aurivevents</div></div>';
+      loadApp();
+    });
+    document.getElementById('su-sample').addEventListener('click', e => { e.preventDefault(); sessionStorage.setItem(SKIP, '1'); loadApp() });
+    document.getElementById('su-out').addEventListener('click', e => { e.preventDefault(); signOut() });
+  }
+  // Same steps as the app's own "New company", but this company replaces the sample.
+  function createCompany(d) {
+    const id = 'ws_' + uid();
+    WS = id;
+    const base = seed();
+    REQUIRED.filter(k => k !== 'company' && k !== 'users').forEach(k => base[k] = []);
+    COLLS_EXT.forEach(k => base[k] = []);
+    base.company = Object.assign({}, base.company, { name: d.co, id: 'co_' + uid(), invoiceSeq: 1, cnSeq: 1, gstin: '', address: '' });
+    base.users = [{ id: 'u1', name: d.name, phone: d.phone || '', email: CLOUD.user.email, role: 'owner', active: true }];
+    base.sample = false; base.onboarded = false;
+    base.ui = { userId: 'u1', eventId: null, tab: 'overview', year: new Date().getFullYear(), filter: 'active' };
+    S = ensureCollections(base); UI = null; LAST_SAVED = null; bindUI(); setTabSession(null);
+    S.rev = 1; localStorage.setItem(skey(), JSON.stringify(S)); SYNC.rev = 1; writeMeta();
+    saveWorkspaces([{ id, name: d.co, createdAt: new Date().toISOString() }]);
+    keysOfLid('ws_sample').forEach(k => localStorage.removeItem(k));
+    try { localStorage.setItem('auriv.lastWS', id) } catch (e) {}
+    startSession('u1', 'cloud');
+    location.hash = 'home';
   }
 
   /* ---------------- start ---------------- */
@@ -478,6 +539,7 @@
     if (session) {
       CLOUD.user = session.user;
       try { await pull(session.user) } catch (e) { console.warn('pull failed, using device copy', e) }
+      if (needsSetup()) return renderSetup();
       return loadApp();
     }
     if (sessionStorage.getItem(LOCAL_ONLY)) return loadApp();
