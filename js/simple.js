@@ -471,7 +471,7 @@
     return r0;
   };
   // sheets (record payment, add expense…) also lose the sandbox clutter; no TDS in the basic app
-  new MutationObserver(() => { if (!on()) return; const m = document.querySelector('#modal .modal'); if (!m) return; m.querySelectorAll('.pill.warn[title*="stands in"]').forEach(p => p.remove()); const t = m.querySelector('#ptds'); if (t && !t.dataset.zero) { t.dataset.zero = '1'; t.value = '0'; t.dispatchEvent(new Event('input', { bubbles: true })) } }).observe(document.getElementById('modal'), { childList: true, subtree: true });
+  new MutationObserver(() => { if (!on()) return; const m = document.querySelector('#modal .modal'); if (!m) return; m.querySelectorAll('.pill.warn[title*="stands in"]').forEach(p => p.remove()); const eg = m.querySelector('label[for="eg"]'); if (eg && /largest/.test(eg.textContent)) eg.textContent = 'Expected guests'; const t = m.querySelector('#ptds'); if (t && !t.dataset.zero) { t.dataset.zero = '1'; t.value = '0'; t.dispatchEvent(new Event('input', { bubbles: true })) } }).observe(document.getElementById('modal'), { childList: true, subtree: true });
 
   window.AURIV_SIMPLE = { on, markSync, statusOf };
 })();

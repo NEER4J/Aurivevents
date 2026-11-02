@@ -855,3 +855,11 @@ html.simple .card:has(> .two.one > div > #vq){padding:0;background:none}
 .vd-stats b{font-size:15.5px;font-weight:500;white-space:nowrap}
 .vd-label{font-size:13px;color:var(--muted);margin:14px 0 2px}
 .card[data-vd] > .list .item:first-child{padding-top:8px!important}
+
+/* fields in a row line up at the bottom even when one label wraps */
+:is(.two,.grid) > div:has(> label:first-child){display:flex;flex-direction:column;justify-content:flex-end;min-width:0}
+:is(.two,.grid) > div:has(> label:first-child) > :is(.help,.meta){order:3}
+/* no spinner arrows on number fields */
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+html.simple #f-event :is(label[for="epl"],.sel:has(#epl),.two:has(#epr),label.chk:has(#egst),.two:has(#ecg)){display:none!important}
