@@ -840,3 +840,5 @@ html.simple .card:has(> .two.one > div > #vq){padding:0;background:none}
 .tabbar a.on .tb{outline-color:var(--ink)}
 .main{padding-bottom:104px}
 .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+/* no empty dock while the app is loading */
+.dock:not(:has(#tabbar a)){display:none}
