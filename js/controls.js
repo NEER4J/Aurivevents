@@ -9,6 +9,18 @@
   const chev = '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
   const tick = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
 
+  /* ---------------- stability: focusing a field must never scroll the frame ----------------
+     (sheets slide in from below; a focus() during that animation used to jump the whole screen) */
+  const _focus = HTMLElement.prototype.focus;
+  HTMLElement.prototype.focus = function (o) { return _focus.call(this, Object.assign({ preventScroll: true }, o || {})) };
+  ['scroll'].forEach(ev => document.addEventListener(ev, e => {
+    const t = e.target;
+    if (t === document || t === document.documentElement || t === document.body || (t.classList && (t.classList.contains('device') || t.classList.contains('phone') || t.classList.contains('stage') || t.id === 'modal' || t.classList.contains('modal-bg')))) {
+      const el = t === document ? document.scrollingElement : t;
+      if (el && (el.scrollTop || el.scrollLeft)) { el.scrollTop = 0; el.scrollLeft = 0 }
+    }
+  }, true));
+
   /* ---------------- dropdowns ---------------- */
   function label(sel) { const o = sel.options[sel.selectedIndex]; return o ? o.textContent.trim() : '' }
   function enhanceSelect(sel) {
@@ -65,7 +77,7 @@
     dev().appendChild(p);
     open = p;
     requestAnimationFrame(() => p.classList.add('in'));
-    const on = p.querySelector('.pk-opt.on'); if (on) on.scrollIntoView({ block: 'center' });
+    const on = p.querySelector('.pk-opt.on'), list = p.querySelector('.pk-list'); if (on && list) list.scrollTop = Math.max(0, on.offsetTop - list.clientHeight / 2 + on.offsetHeight / 2);
     p.querySelector('.pk-scrim').addEventListener('click', () => closePicker());
     p.querySelector('.pk-x').addEventListener('click', () => closePicker());
     p.querySelectorAll('.pk-opt').forEach(b => b.addEventListener('click', () => {

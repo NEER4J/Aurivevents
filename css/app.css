@@ -548,3 +548,53 @@ table.tbl-2 td{font-size:14px}
 .grid>*,.two>*,.row>*{min-width:0}
 .num,.val,.stat .val{overflow-wrap:normal!important;word-break:keep-all}
 .card>.row>div .num{white-space:nowrap}
+
+/* =====================================================================
+   Organisation pass
+   ===================================================================== */
+/* the frame itself never scrolls */
+.stage,.phone,.device,#modal{overflow:hidden}
+.modal-bg{overflow:hidden;contain:layout paint}
+.modal{will-change:transform}
+
+/* notes: text, then actions on their own line */
+.note,.alert{display:block}
+.note > .btn,.alert > .btn,.note > .btn.sm,.alert > .btn.sm{margin:12px 8px 0 0;min-height:38px;padding:8px 16px;font-size:14px}
+.note > b:first-child{display:inline}
+.home-note{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.home-note > b{display:contents}
+.home-note > .btn{margin:6px 0 0!important;background:var(--fill)}
+
+/* status steps wrap instead of being cropped */
+.steps{flex-wrap:wrap;overflow:visible;row-gap:6px}
+.steps .st{font-size:12.5px;padding:4px 11px}
+
+/* filter bars: dropdowns in an even 2-column grid, search full width */
+.row:has(> .sel ~ .sel),.row:has(> .sel ~ input),.row:has(> input ~ .sel){display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important;width:100%}
+.row:has(> .sel ~ .sel) > .sel,.row:has(> .sel ~ input) > .sel,.row:has(> input ~ .sel) > .sel{width:100%!important}
+.row:has(> .sel ~ .sel) > input,.row:has(> .sel ~ input) > input,.row:has(> input ~ .sel) > input{grid-column:1/-1;width:100%!important;order:-1}
+.row:has(> .sel ~ .sel) > .btn{grid-column:1/-1}
+.sel.sel-sm .sel-btn{border-radius:16px;min-height:46px}
+.row:has(> .sel ~ .sel) + .card,.row:has(> .sel ~ input) + .card{margin-top:12px}
+
+/* audit log & any key/value diffs: tidy blocks */
+.diffrow{display:block;background:var(--fill);border-radius:12px;padding:8px 10px;margin-top:8px;font-size:11.5px;line-height:1.5}
+.item .mono:not(.diffrow){color:var(--muted);font-size:11.5px}
+.item > .row.between{align-items:flex-start;row-gap:2px}
+.item > .row.between > .meta,.item > .row.between > .small.muted{width:100%;margin-top:0}
+.item pre,.item .mono{white-space:pre-wrap;word-break:break-word}
+
+/* event cards: the price line reads as one quiet line */
+.ev-body > .row.between > div[style*="text-align:right"]{color:var(--muted);font-size:13px}
+.ev-body > .row.between > div[style*="text-align:right"] .num{color:var(--ink)}
+
+/* The frame is never a scroll container: clip instead of hidden, so nothing
+   (focus, scrollIntoView, off-screen sheets/dock/menu) can shift the whole screen. */
+html,body,.stage,.phone,.device,#modal,.modal-bg,.picker{overflow:clip!important}
+.main,.modal,.pk-list,.side,.hscroll,.tabs,.scroll,.chips:has(> .btn.chip),.steps{overflow-clip-margin:0}
+.modal{overflow-y:auto!important;overflow-x:hidden!important}
+.side{overflow-y:auto!important;overflow-x:hidden!important}
+
+/* Screen entry: vertical only. The page fades, sections rise straight up — no sideways slide. */
+#app.pg-fwd,#app.pg-back,#app.pg-tab{animation:fadeIn .3s ease both}
+#app.pg-in>*{animation:rise .45s var(--ease) both;animation-delay:calc(var(--i,0) * 35ms)}
