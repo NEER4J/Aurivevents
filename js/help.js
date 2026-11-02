@@ -45,7 +45,8 @@
     ['I have no signal at the venue', 'Keep going. Expenses and other changes are saved on your phone and marked “Waiting to sync”. They upload by themselves when you’re back online.'],
     ['Can my staff see our profit?', 'No. Staff can add events, vendors, payments and expenses, but never see profit or margin anywhere in the app.', true],
     ['How do I add someone to my team?', 'Settings → Team → + Add team member. Choose Owner (sees everything) or Staff (no profit).', true],
-    ['Where are quotes, tasks, crew and run sheets?', 'They’re switched off to keep the app simple. An owner can turn them on in Settings → Advanced tools.', true],
+    ['Where are quotes, tasks, crew and run sheets?', 'Tap <b>More</b> at the bottom right — every other tool is there, grouped (Work, Clients & sales, People & vendors, Money, Reports, Setup). For one event, open it and tap <b>⋯</b> next to the tabs for Quote, Budget, Tasks, Crew, Run sheet, Documents and more.'],
+    ['Where are GST, TDS and foreign currency?', 'In the forms, under <b>More options</b>. Company-wide rules are in Settings → All settings.', true],
     ['How do I switch to Malayalam?', 'Open the menu (tap your initial, top right) and tap മലയാളം at the bottom.'],
     ['I forgot my password', 'On the sign-in screen tap “Forgot password?”. We email you a link to choose a new one.']
   ].filter(f => !f[2] || isOwner());

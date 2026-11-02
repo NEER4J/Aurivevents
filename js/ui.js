@@ -28,7 +28,8 @@
   document.addEventListener('click', e => {
     const t = e.target.closest('[data-ui],[data-act="more-nav"],.side .nav a');
     if (!t) return;
-    if (t.matches('[data-act="more-nav"]') || t.dataset.ui === 'drawer') { e.preventDefault(); e.stopPropagation(); openDrawer(); return }
+    if (t.matches('[data-act="more-nav"]')) { e.preventDefault(); e.stopPropagation(); closeDrawer(); location.hash = 'tools'; return }
+    if (t.dataset.ui === 'drawer') { e.preventDefault(); e.stopPropagation(); openDrawer(); return }
     if (t.dataset.ui === 'drawer-close') { e.preventDefault(); closeDrawer(); return }
     if (t.matches('.side .nav a')) closeDrawer();
   }, true);
@@ -58,7 +59,7 @@
       a.innerHTML = `<span class="ti">${svg(key)}${c ? `<b class="tb">${c === '•' ? '' : esc(c)}</b>` : ''}</span><span class="tl">${esc(label)}</span>`;
       a.dataset.dec = '1';
     });
-    if (!tabbar.querySelector('a.on')) { let r = ''; try { r = route() } catch (e) {} if (r === 'event') { const h = tabbar.querySelector('a[href="#home"],a[href="#events"]'); if (h) h.classList.add('on') } }
+    if (!tabbar.querySelector('a.on')) { let r = ''; try { r = route() } catch (e) {} if (r === 'event') { const h = tabbar.querySelector('a[href="#events"],a[href="#home"]'); if (h) h.classList.add('on') } }
     moveDockIndicator();
     // Drawer footer: cloud account, company switcher, team access
     const foot = document.getElementById('side-account');

@@ -1,12 +1,14 @@
-/* ===== simple.js — the basic app from the build guide =====
-   Simple mode is ON by default. It shows only what the guide describes:
-     Home (events) · Event page (six numbers + Client money / Vendors / Expenses / Changes)
-     Reimbursements · Vendor directory · Company overview (owner) · Settings (owner)
-   Everything else stays in the code, untouched, behind Settings → "Advanced tools".
-   The switch is per company (S.company.advanced). */
+/* ===== simple.js — the app's front door =====
+   The basics from the build guide come first:
+     Home (events) · Event page (six numbers + Client / Vendors / Expenses / Changes)
+     Reimbursements · Vendor directory · Company (owner) · Settings · Help
+   Everything else from v5.10 is one tap away, organised:
+     More (dock) → tools grouped as Work · Clients & sales · Money · Reports · Setup & admin
+     Event page → "⋯" segment → Quote, Budget, Tasks, Crew, Run sheet, Guests, Documents…
+     Forms → extra fields under "More options"; Settings → "All settings". */
 (function () {
-  const on = () => { try { return !(S && S.company && S.company.advanced === true) } catch (e) { return true } };
-  const SIMPLE_ROUTES = ['home', 'events', 'event', 'reimb', 'vendors', 'overview', 'settings', 'help'];
+  const on = () => true;
+  const SIMPLE_ROUTES = ['home', 'events', 'event', 'reimb', 'vendors', 'overview', 'settings', 'help', 'tools'];
   const STATUS = { enquiry: 'enquiry', quoted: 'enquiry', confirmed: 'confirmed', planning: 'progress', eventweek: 'progress', done: 'done', closed: 'done', lost: 'cancelled', cancelled: 'cancelled' };
   const STATUS_LABEL = { enquiry: 'Enquiry', confirmed: 'Confirmed', progress: 'In progress', done: 'Done', cancelled: 'Cancelled' };
   const statusOf = e => STATUS[e.stage] || 'confirmed';
@@ -21,10 +23,11 @@
     const n = _nav();
     if (!on()) return n;
     const by = {}; n.forEach(x => by[x[0]] = x);
-    const out = [['home', 'Home', '']];
+    const out = [['home', 'Home', ''], ['events', 'Events', '']];
     out.push(['reimb', 'Reimbursements', (by.reimb || [])[2] || '']);
     if (can('vendors')) out.push(['vendors', 'Vendors', '']);
     if (can('profit')) out.push(['overview', 'Company', '']);
+    out.push(['tools', 'All tools', toolBadge()]);
     if (me().role === 'owner') out.push(['settings', 'Settings', '']);
     out.push(['help', 'Help', '']);
     return out;
@@ -32,15 +35,42 @@
   const _route = route;
   route = function () {
     const r = _route();
-    if (!on()) return r;
-    if (SIMPLE_ROUTES.includes(r)) return r;
-    // advanced screens (by nav or registered page) fall back to Home; public links are untouched
-    const adv = new Set(_nav().map(x => x[0]).concat(Object.keys(window.PAGES_EXT || {})));
-    return adv.has(r) ? 'home' : r;
+    // every v5.10 screen this person may open (role-gated by the original menu) is reachable again
+    const h = (location.hash || '').replace('#', '').split('/')[0];
+    if (r === 'home' && h && h !== 'home' && _nav().some(x => x[0] === h)) return h;
+    return r;
   };
 
+  /* ---------------- More: every other tool, organised ---------------- */
+  const TOOL_GROUPS = [
+    ['Work', [['reimb', 'Reimbursements', 'Money owed to your team'], ['mytasks', 'My tasks', 'What is assigned to you'], ['approvals', 'Sign-offs', 'Spending and changes waiting for approval'], ['calendar', 'Calendar', 'Events, payments and tasks by date'], ['daypack', 'Event-day pack', 'One page per function for the crew'], ['inbox', 'Inbox', 'Notifications and messages']]],
+    ['Clients & sales', [['clients', 'Clients', 'Contacts, repeat business, preferences'], ['leads', 'Leads & follow-up', 'Enquiries and the next action on each'], ['proposals', 'Next-quote proposals', 'Price changes learned from past events'], ['clientview', 'Client view', 'What the client sees on their link']]],
+    ['People & vendors', [['crew', 'Crew', 'People you deploy, day rates and clashes'], ['mytime', 'My time', 'Hours you spent on each event'], ['jobcard', 'Job cards', 'What each vendor needs to know'], ['sourcing', 'Sourcing network', 'Vendors other planners recommend'], ['inventory', 'Inventory', 'Your own stock and rentals'], ['files', 'All files', 'Every document and photo']]],
+    ['Money', [['receipts', 'Receipt review', 'Check bills, duplicates and claims'], ['cashbook', 'Cash book', 'Cash in and out, with vouchers'], ['cash', 'Cash & working capital', 'What is coming in and going out'], ['bank', 'Bank reconciliation', 'Match the bank statement'], ['books', 'For the accountant', 'Payables, exports and GST/TDS'], ['pricebook', 'Price book', 'Rates from your own agreements'], ['fx', 'Multi-currency', 'Foreign-currency receipts']]],
+    ['Reports', [['company-full', 'Full company report', 'Cash weeks, planners, pipeline'], ['reports', 'Reports', 'Saved reports and scheduled digests'], ['analytics', 'Sales & collections', 'Win rate, turnaround, receivables'], ['segments', 'Profitability by segment', 'Which kinds of event make money'], ['exceptions', 'Exceptions', 'Every alert that needs action'], ['capacity', 'Capacity & risk', 'Workload and concentration'], ['benchmark', 'Benchmarks', 'Compare your rates']]],
+    ['Setup & admin', [['modules', 'Modules', 'Switch features on or off'], ['automations', 'Automations', 'Reminders that run by themselves'], ['assistant', 'Assistants', 'Drafts from your own data'], ['setup', 'Setup checklist', 'Guided company setup'], ['auditlog', 'Audit log', 'Every change, who and when'], ['health', 'Service health', 'Storage, saves and errors'], ['developer', 'Developer', 'API keys and webhooks'], ['operator', 'Support console', 'Support access you have granted'], ['build', 'For the tech team', 'What is built and how']]]
+  ];
+  const EXTRA_PAGES = { reimb: () => true, 'company-full': () => can('profit') };
+  function toolsFor() {
+    const allowed = new Set(_nav().map(x => x[0]));
+    const counts = {}; _nav().forEach(x => counts[x[0]] = x[2]);
+    return TOOL_GROUPS.map(([g, list]) => [g, list.filter(([k]) => allowed.has(k) || (EXTRA_PAGES[k] && EXTRA_PAGES[k]())).map(t => t.concat([counts[t[0]] || '']))]).filter(([, l]) => l.length);
+  }
+  function toolBadge() { try { return toolsFor().some(([, l]) => l.some(t => t[3])) ? '•' : '' } catch (e) { return '' } }
+  const TOOL_KEYS = () => new Set(TOOL_GROUPS.flatMap(([, l]) => l.map(t => t[0])));
+  const TI = d => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+  const TICON = { Work: TI('<path d="M9 11.5l2.2 2.2L16 9"/><rect x="3.5" y="3.5" width="17" height="17" rx="4"/>'), 'Clients & sales': TI('<circle cx="12" cy="8" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/>'), 'People & vendors': TI('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.5a6.5 6.5 0 0 1 3 5.5"/>'), Money: TI('<rect x="2.5" y="6" width="19" height="13" rx="2.5"/><path d="M2.5 10.5h19M6.5 15h3"/>'), Reports: TI('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'), 'Setup & admin': TI('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>') };
+  function vTools() {
+    const groups = toolsFor();
+    return `<div class="row between pg-head"><h1>More</h1></div>
+      <button type="button" class="tools-search" data-act="s-search">${TI('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>')}<span>Search everything</span></button>
+      ${groups.map(([g, list]) => `<div class="sec-label"><span>${g}</span></div><div class="card tools-card">${list.map(([k, l, d, c]) => `<a class="tool-row" href="#${k}"><span class="tr-ic">${TICON[g]}</span><span class="tr-tx"><b>${esc(l)}</b><small>${esc(d)}</small></span>${c ? `<span class="cnt">${esc(String(c))}</span>` : ''}<svg class="tr-go" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>`).join('')}</div>`).join('')}
+      <div class="sec-label"><span>App</span></div><div class="card tools-card">${me().role === 'owner' ? `<a class="tool-row" href="#settings"><span class="tr-ic">${TICON['Setup & admin']}</span><span class="tr-tx"><b>Settings</b><small>Company, team, categories, export</small></span><svg class="tr-go" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>` : ''}<a class="tool-row" href="#help"><span class="tr-ic">${TI('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.3-2.5 3.8"/>')}</span><span class="tr-tx"><b>Help</b><small>How it works, questions, words we use</small></span><svg class="tr-go" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>`;
+  }
+  act('s-search', () => { if (window.AURIV_SEARCH) AURIV_SEARCH.open() });
+
   /* ---------------- two roles: staff do the work, never see profit ---------------- */
-  const STAFF_CAPS = ['events.edit', 'vendors', 'vendors.amounts', 'payments', 'expenses', 'directory.edit', 'docs.view'];
+  const STAFF_CAPS = ['events.edit', 'vendors', 'vendors.amounts', 'payments', 'expenses', 'directory.edit', 'docs.view'].concat((CAPS.staff || []));
   const _can = can;
   can = function (cap) {
     if (on()) { const u = me(); if (u && u.role === 'staff') return STAFF_CAPS.includes(cap) }
@@ -81,6 +111,51 @@
     </div>`;
   }
   act('sfilter', ({ v }) => { S.ui.sfilter = v; save(); render() });
+
+  /* ---------------- Home: today — money, risk, what needs you ---------------- */
+  function greet() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening' }
+  const pillOf = k => k === 'bad' ? 'bad' : 'warn';
+  function vToday() {
+    const u = me(); const r = u.role; const owner = can('profit');
+    let att = []; try { att = attention() } catch (e) {}
+    const first = att[0];
+    const live = evList().filter(isLive);
+    const tile = (l, v, sub, href, dark) => `<a class="card stat t-tile${dark ? ' soft' : ''}" href="${href}"><div class="lbl">${l}</div><div class="val num">${v}</div><div class="sub">${sub}</div></a>`;
+    let tiles = '';
+    if (owner) {
+      const pipeline = evList().filter(e => stageIdx(e.stage) < 2 && e.stage !== 'lost');
+      const owe = sum(live, e => Math.max(0, calc(e).toCome)), prof = sum(live, e => calc(e).forecast);
+      const pipe = sum(pipeline, e => { try { return quoteTotals(e).price || e.contractPaise || 0 } catch (er) { return e.contractPaise || 0 } });
+      const reimb = sum(live_(S.expenses).filter(x => x.source === 'own' && !x.settlementId && x.status !== 'declined'), x => x.amountPaise);
+      tiles = tile('Clients still owe', inr(owe), 'Across live events', '#overview') + tile('Forecast profit', inr(prof), 'Live events', '#overview', true) + tile('In the pipeline', inr(pipe), `${pipeline.length} enquir${pipeline.length === 1 ? 'y' : 'ies'}`, '#events') + tile('Reimbursements', inr(reimb), 'Owed to your team', '#reimb');
+    } else {
+      let od = 0, owed = 0; try { od = myTasks().filter(taskOverdue).length } catch (e) {} try { owed = sum(owedTo(S.ui.userId), x => x.amountPaise) } catch (e) {}
+      tiles = tile('My tasks overdue', od, 'Tap to see your tasks', '#mytasks') + tile('You are owed', inr(owed), 'From your own pocket', '#reimb', true);
+    }
+    const showAll = !!S.ui.attAll, list = showAll ? att : att.slice(0, 4);
+    const attRow = a => `<div class="item"><span class="pill ${pillOf(a.kind)}">${esc(a.tag)}</span><div class="t" style="margin-top:6px">${esc(a.e.name)}</div><div class="meta">${esc(a.txt)}</div><button class="btn sm" style="margin-top:8px" data-act="open-event" data-id="${a.e.id}" data-tab="${a.tab || ''}">Review</button></div>`;
+    const up = sortSoonest(evList().filter(e => isLive(e) && (e.endDate || e.startDate) >= todayStr())).slice(0, 3);
+    let cash = '';
+    if (owner) {
+      let cc = { inn: 0, out: 0, uns: 0 }, weeks = []; try { cc = cashCarry(); weeks = cashWeeks(4) } catch (e) {}
+      const net = (i, o) => `<b class="num ${i - o < 0 ? 'neg' : ''}">${i - o < 0 ? '−' : ''}${inr(Math.abs(i - o))}</b>`;
+      const row = (l, i, o, strong) => `<div class="cw-row${strong ? ' strong' : ''}"><span>${l}</span><span class="num">${i == null ? '—' : inr(i)}</span><span class="num">${inr(o)}</span>${i == null ? `<b class="num neg">−${inr(o)}</b>` : net(i, o)}</div>`;
+      cash = `<div class="sec-label"><span>Next 4 weeks: cash</span><a href="#company-full">8-week view</a></div>
+        <div class="card cw"><div class="cw-row head"><span>Week of</span><span>In</span><span>Out</span><span>Net</span></div>
+        ${cc.inn || cc.out ? row('Overdue', cc.inn, cc.out, true) : ''}${cc.uns ? row('No date yet', null, cc.uns, true) : ''}${weeks.map(w => row(fmtShort(w.from), w.inn, w.out)).join('')}</div>`;
+    }
+    return `<div class="sh-date">${esc(new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }))} · ${esc(S.company.name)}</div>
+      <h1 class="today-h">${greet()}, ${esc(String(u.name).split(' ')[0])}</h1>
+      ${first ? `<div class="card first-thing" data-act="open-event" data-id="${first.e.id}" data-tab="${first.tab || ''}" role="button" tabindex="0"><div class="ft-top"><span class="ft-k">First thing</span><span class="pill ${pillOf(first.kind)}">${esc(first.tag)}</span></div><div class="ft-t">${esc(first.e.name)}</div><div class="ft-s">${esc(first.txt)}</div></div>` : `<div class="card first-thing calm"><div class="ft-t">All clear</div><div class="ft-s">Nothing needs you right now.</div></div>`}
+      <div class="grid g2 t-tiles">${tiles}</div>
+      ${att.length ? `<div class="sec-label"><span>Needs attention</span><span class="pill">${att.length}</span></div><div class="card"><div class="list">${list.map(attRow).join('')}</div>${att.length > 4 ? `<button class="btn sm" style="margin-top:12px" data-act="s-att">${showAll ? 'Show fewer' : `Show all ${att.length}`}</button>` : ''}</div>` : ''}
+      <div class="sec-label"><span>Coming up</span><span class="sl-acts">${can('events.edit') ? '<button class="btn sm" data-act="new-event">+ New event</button>' : ''}<a href="#events">All events</a></span></div>
+      ${up.length ? `<div class="stack">${up.map(e => { const c = calc(e); return `<div class="card" data-act="open-event" data-id="${e.id}"><div class="row between"><div>${statusPill(e)}<div class="t">${esc(e.name)}</div><div class="meta">${esc(e.client || '')} · ${fmtDate(e.startDate)}</div></div>${owner ? `<div style="text-align:right"><div class="num">${c.contract ? inr(c.actual) : '—'}</div><div class="small muted">${c.contract ? pct(c.actual, c.contract) + ' margin' : ''}</div></div>` : ''}</div></div>` }).join('')}</div>`
+        : `<div class="card empty-state"><div class="es-t">No upcoming events</div><div class="es-s">Add your next event: the client, the date and what they are paying.</div>${can('events.edit') ? '<button class="btn pri" data-act="new-event">+ New event</button><a class="es-link" href="#help">How it works</a>' : ''}</div>`}
+      ${cash}`;
+  }
+  const live_ = l => l.filter(x => !x.voided);
+  act('s-att', () => { S.ui.attAll = !S.ui.attAll; save(); render() });
 
   /* ---------------- New event (Screen 3) ---------------- */
   const WEDDING_FNS = ['Engagement', 'Haldi', 'Mehendi', 'Sangeet', 'Wedding', 'Reception'];
@@ -153,21 +228,47 @@
     if (isOwnerish()) t.push(['changes', 'Changes']);
     return t;
   };
+  /* the event's other sections (v5.10 tabs), shown under the ⋯ segment */
+  function extraTabs(e) {
+    const t = [['overview', 'Summary & functions', 'Functions, headcount, sharing, status']];
+    if (can('quote')) t.push(['quote', 'Quote', 'Line items, margin preview, versions']);
+    if (can('budget.view')) t.push(['budget', 'Budget', 'Allocation by category vs committed']);
+    if (can('budget.view')) t.push(['scope', 'Scope & forecast', 'What is bought and what is still to buy']);
+    t.push(['tasks', 'Tasks', 'Who does what, by when']);
+    if (can('crew.manage') || can('crew.assign')) t.push(['crew', 'Crew', 'People on the event, days and pay']);
+    t.push(['runsheet', isEventDay(e) ? 'Run sheet · live' : 'Run sheet', 'Minute-by-minute plan for the day']);
+    if (can('client')) t.push(['approvals', 'Client approvals', 'Designs, menus and changes to sign off']);
+    if (can('profit')) t.push(['income', 'Other income', 'Commissions and referrals']);
+    if (can('stage') && stageIdx(e.stage) >= 4) t.push(['close', e.stage === 'closed' ? 'Final figures' : 'Close-out', 'Settle up and lock the numbers']);
+    if (can('docs.view')) t.push(['documents', 'Documents', 'Contracts, quotes and files']);
+    if (can('activity')) t.push(['activity', 'Activity', 'Everything that changed, and who']);
+    (window.TABS_EXT || []).forEach(x => { try { if (x.cond(e, false) && !t.some(y => y[0] === x.key)) t.push([x.key, x.label, '']) } catch (er) {} });
+    return t;
+  }
+  const ORIG_TAB = () => Object.assign({ overview: tabOverview, quote: tabQuote, budget: tabBudget, client: tabClient, vendors: tabVendors, expenses: tabExpenses, changes: tabChanges, tasks: tabTasks, crew: tabCrew, runsheet: tabRunsheet, activity: tabActivity, approvals: tabClientApprovals, documents: tabDocs, income: tabIncome, close: tabClose }, window.TABFN_EXT || {});
+  act('s-more-tabs', () => {
+    const e = ev(S.ui.eventId); if (!e) return;
+    openModal(`${hd('More for this event')}<div class="list">${extraTabs(e).map(([k, l, d]) => `<button type="button" class="status-opt ${S.ui.tab === k ? 'on' : ''}" data-act="s-tab-x" data-v="${k}"><span><b>${esc(l)}</b>${d ? `<small>${esc(d)}</small>` : ''}</span><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>`).join('')}</div>`);
+  });
+  act('s-tab-x', ({ v }) => { S.ui.tab = v; save(); closeModal(); render(); const sc = document.getElementById('scroller'), t = document.querySelector('.s-tabs'); if (sc && t) sc.scrollTop += t.getBoundingClientRect().top - sc.getBoundingClientRect().top - 12 });
   function vSimpleEvent() {
     const e = ev(S.ui.eventId); if (!e) return vSimpleHome();
     if (!eventVisible(e)) return _vEvent();
     const c = calc(e); const lk = locked(e);
-    const tabs = TABS(); const cur = tabs.some(t => t[0] === S.ui.tab) ? S.ui.tab : tabs[0][0];
+    const tabs = TABS(); const extras = extraTabs(e);
+    const extra = extras.find(t => t[0] === S.ui.tab && !tabs.some(b => b[0] === t[0]));
+    const cur = extra ? extra[0] : tabs.some(t => t[0] === S.ui.tab) ? S.ui.tab : tabs[0][0];
     const fns = { client: tabSimpleClient, vendors: tabSimpleVendors, expenses: tabSimpleExpenses, changes: tabSimpleChanges };
     const days = daysUntil(e.startDate);
-    let body = ''; try { body = fns[cur](e, c) } catch (err) { body = `<div class="alert small">This tab could not be drawn: ${esc(err.message)}</div>` }
+    let body = ''; try { body = extra ? ORIG_TAB()[cur](e, c) : fns[cur](e, c) } catch (err) { body = `<div class="alert small">This section could not be drawn: ${esc(err.message)}</div>` }
+    if (extra) body = `<div class="x-head"><div><div class="eyebrow">This event</div><h2>${esc(extra[1])}</h2></div><button class="btn sm" data-act="s-more-tabs">All sections</button></div>` + body;
     return `<a href="#events" class="btn sm">← Events</a>
       <div class="eyebrow">${({ wedding: 'Wedding', corporate: 'Corporate', other: 'Event' })[e.type] || 'Event'} · ${fmtDate(e.startDate)}${e.endDate && e.endDate !== e.startDate ? ' – ' + fmtDate(e.endDate) : ''}${statusOf(e) === 'done' || statusOf(e) === 'cancelled' ? '' : days > 0 ? ` · ${days} days to go` : days === 0 ? ' · Today' : ''}</div>
       <div class="row between"><h1>${esc(e.name)}</h1><div class="row" style="gap:8px"><button class="btn sm status-btn" data-act="s-status" ${lk || !can('events.edit') ? 'disabled' : ''}>${STATUS_LABEL[statusOf(e)]}${lk || !can('events.edit') ? '' : ' <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>'}</button>${can('events.edit') && !lk ? '<button class="btn sm" data-act="edit-event">Edit</button>' : ''}</div></div>
       <div class="ev-sub">${esc(e.client || '')}${e.phone ? ' · ' + esc(e.phone) : ''} · ${esc(e.venue || 'Venue to be decided')} · ${e.guests || 0} guests${(e.functions || []).length ? ' · ' + e.functions.map(esc).join(', ') : ''}</div>
       ${sixNumbers(e, c)}
-      <div class="tabs s-tabs">${tabs.map(([k, l]) => `<button class="btn ${cur === k ? 'pri' : ''}" data-act="tab" data-v="${k}">${l}</button>`).join('')}</div>
-      <div class="s-tab s-tab-${cur}">${body}</div>`;
+      <div class="tabs s-tabs">${tabs.map(([k, l]) => `<button class="btn ${cur === k ? 'pri' : ''}" data-act="tab" data-v="${k}">${l}</button>`).join('')}<button class="btn s-more ${extra ? 'pri' : ''}" data-act="s-more-tabs" aria-label="More for this event"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button></div>
+      <div class="s-tab s-tab-${cur}${extra ? ' s-tab-x' : ''}">${body}</div>`;
   }
 
   act('s-contract', () => {
@@ -325,11 +426,12 @@
     return `<div class="card" id="s-export"><h2>Export for your accountant</h2><div class="small muted" style="margin-bottom:6px">One Excel file per event with every vendor, payment, expense, milestone and change, plus a zip of the bill photos.</div>
       <div class="list">${evs.map(e => `<div class="item"><div class="t">${esc(e.name)}</div><div class="meta">${fmtDate(e.startDate)}</div><div class="chips" style="margin-top:8px"><button class="btn sm pri" data-act="s-xlsx" data-id="${e.id}">Excel</button><button class="btn sm" data-act="s-photos" data-id="${e.id}">Bill photos (.zip)</button></div></div>`).join('') || '<div class="muted small">No events yet.</div>'}</div></div>`;
   }
-  function advancedCard() {
-    return `<div class="card adv-card" id="s-adv"><div class="row between" style="flex-wrap:nowrap"><div><h2>Advanced tools</h2><div class="small muted">Quotes, tasks, crew, run sheets, guests, client portal, bank reconciliation and more. Off keeps the app to the basics.</div></div>
-      <button type="button" class="switch ${on() ? '' : 'on'}" role="switch" aria-checked="${!on()}" data-act="s-adv" aria-label="Advanced tools"><i></i></button></div></div>`;
+  function allSettingsCard() {
+    return `<div class="card adv-card" id="s-adv"><div class="row between" style="flex-wrap:nowrap"><div><h2>All settings</h2><div class="small muted">Templates, GST and invoicing, access & security, backups, notifications, crew and cash rules.</div></div>
+      <button type="button" class="btn sm" data-act="s-allset">Open</button></div></div>`;
   }
   function tidySettings(app) {
+    if (S.ui.allSettings) { app.insertAdjacentHTML('afterbegin', '<button class="btn sm back-more" data-act="s-allset-off">‹ Basic settings</button>'); return }
     const keep = ['Company', 'Team & roles'];
     [...app.querySelectorAll('.card')].filter(cd => !cd.parentElement.closest('.card')).forEach(cd => {
       const h = cd.querySelector('h2,h3'); const t = h ? h.textContent.trim() : '';
@@ -342,14 +444,10 @@
     const co = [...app.querySelectorAll('.card')].find(cd => ((cd.querySelector('h2,h3') || {}).textContent || '').trim() === 'Company');
     if (co) { const d = co.querySelector('h2,h3').nextElementSibling; if (d && !d.matches('.btn,.row')) d.innerHTML = `${esc(S.company.name)}<div class="meta">Duplicate payment check: ${S.company.dupHours || 72} hours</div>` }
     const holder = app.querySelector(':scope > .stack') || app;
-    holder.insertAdjacentHTML('beforeend', categoriesCard() + exportCard() + advancedCard());
+    holder.insertAdjacentHTML('beforeend', categoriesCard() + exportCard() + allSettingsCard());
   }
-  act('s-adv', () => {
-    const turningOn = on();
-    if (turningOn && !confirm('Turn on advanced tools for everyone in this company?')) return;
-    S.company.advanced = turningOn ? true : false; audit('update', 'company', 'company', 'advanced tools ' + (turningOn ? 'on' : 'off'), null);
-    save(); location.hash = 'settings'; render(); toast(turningOn ? 'Advanced tools on' : 'Back to the basics');
-  });
+  act('s-allset', () => { S.ui.allSettings = true; save(); render(); document.getElementById('scroller').scrollTop = 0 });
+  act('s-allset-off', () => { S.ui.allSettings = false; save(); render(); document.getElementById('scroller').scrollTop = 0 });
   act('s-cat-rm', ({ el }) => { const k = el.dataset.k, i = el.dataset.i; const l = S.company[k] || []; if (l.length <= 1) return toast('Keep at least one'); const [r] = l.splice(+i, 1); audit('update', 'company', 'company', `removed ${k === 'expenseCats' ? 'expense' : 'vendor'} category ${r}`, null); save(); render() });
   document.addEventListener('submit', e => {
     const f = e.target.closest && e.target.closest('form.cat-add'); if (!f) return;
@@ -392,6 +490,9 @@
   /* ---------------- trim the reused tabs and screens ---------------- */
   const DROP_TITLES = /^(On the bank statement\?|Online payment links|Requests for quotes|Quotes to decide|Petty cash reconciliation|Held or declined claims|Benchmarks from your own events)/;
   function trim(app, r) {
+    app.querySelectorAll('.pill.warn[title*="stands in"]').forEach(p => p.remove());
+    const basic = ['home', 'events', 'reimb', 'vendors', 'overview'].includes(r) || (r === 'event' && ['client', 'vendors', 'expenses', 'changes'].includes((document.querySelector('.s-tab') || { className: '' }).className.replace(/.*s-tab-(\w+).*/, '$1')) && !document.querySelector('.s-tab-x'));
+    if (!basic) return;
     app.querySelectorAll('.card').forEach(cd => { const h = cd.querySelector('h2,h3'); if (h && DROP_TITLES.test(h.textContent.trim())) cd.remove() });
     // explanations about vendor quotes/RFQs and sandbox stand-ins
     app.querySelectorAll('.pill.warn[title*="stands in"]').forEach(p => p.remove());
@@ -443,12 +544,12 @@
   function syncRoleText() { ['owner', 'staff'].forEach(r => { ROLES[r].desc = on() ? SIMPLE_DESC[r] : ROLE_DESC[r] }) }
   new MutationObserver(() => {
     if (!on()) return; const sel = document.querySelector('#modal select#ur'); if (!sel || sel.dataset.two) return;
-    sel.dataset.two = '1'; [...sel.options].forEach(o => { if (!['owner', 'staff'].includes(o.value) && !o.selected) o.remove() });
+    sel.dataset.two = '1'; const order = ['owner', 'staff', 'planner', 'manager', 'accountant']; [...sel.options].sort((a, b) => order.indexOf(a.value) - order.indexOf(b.value)).forEach(o => sel.appendChild(o));
     const btn = sel.parentElement.querySelector('.sel-btn .sel-val'); if (btn) btn.textContent = sel.options[sel.selectedIndex].textContent;
   }).observe(document.getElementById('modal'), { childList: true, subtree: true });
 
   /* ---------------- wire up ---------------- */
-  const _vHome = vHome; vHome = function () { return on() ? vSimpleHome() : _vHome() };
+  const _vHome = vHome; vHome = function () { return on() ? vToday() : _vHome() };
   const _vEvents = vEvents; vEvents = function () { return on() ? vSimpleHome() : _vEvents() };
   const _vEvent = vEvent; vEvent = function () { return on() ? vSimpleEvent() : _vEvent() };
   const _vOverview = vOverview; vOverview = function () { return on() ? vSimpleOverview() : _vOverview() };
@@ -461,18 +562,43 @@
     try {
       if (on()) {
         const app = document.getElementById('app'); let r = ''; try { r = route() } catch (e) {}
-        if (r === 'settings' && app && !app.querySelector('#s-adv')) tidySettings(app);
+        if (r === 'settings' && app && !app.querySelector('#s-adv') && !app.querySelector('.back-more')) tidySettings(app);
+        if (r !== 'settings' && S.ui.allSettings) S.ui.allSettings = false;
+        dock(r);
+        const h = (location.hash || '').replace('#', '');
+        if (app && TOOL_KEYS().has(h) && !app.querySelector(':scope > .back-more')) app.insertAdjacentHTML('afterbegin', '<a href="#tools" class="btn sm back-more">‹ More</a>');
         if (app) trim(app, r);
         markSync();
-      } else {
-        const app = document.getElementById('app');
-        if (app && route() === 'settings' && !app.querySelector('#s-adv') && me() && me().role === 'owner') app.insertAdjacentHTML('afterbegin', advancedCard());
       }
     } catch (err) { console.error('simple', err) }
     return r0;
   };
-  // sheets (record payment, add expense…) also lose the sandbox clutter; no TDS in the basic app
-  new MutationObserver(() => { if (!on()) return; const m = document.querySelector('#modal .modal'); if (!m) return; m.querySelectorAll('.pill.warn[title*="stands in"]').forEach(p => p.remove()); const eg = m.querySelector('label[for="eg"]'); if (eg && /largest/.test(eg.textContent)) eg.textContent = 'Expected guests'; const t = m.querySelector('#ptds'); if (t && !t.dataset.zero) { t.dataset.zero = '1'; t.value = '0'; t.dispatchEvent(new Event('input', { bubbles: true })) } }).observe(document.getElementById('modal'), { childList: true, subtree: true });
+  // sheets keep the everyday fields up front; the rest moves under "More options" (still fully working)
+  const MORE_FIELDS = '#f-event :is(label[for="epl"],#epl,.two:has(#epr),label.chk:has(#egst)), :is(label[for="rcur"],#rcur,#fxrow,details:has(#rcc)), :is(label:has(> #cph),label:has(> #ccp),label:has(> #cdep),label[for="cdl"],#cdl), :is(.two:has(#ptds),#ptdsh)';
+  function moreOptions(m) {
+    const f = m.querySelector('form'); if (!f || f.dataset.mo) return;
+    const nodes = [...f.querySelectorAll(MORE_FIELDS)].map(n => n.tagName === 'SELECT' ? (n.closest('.sel') || n) : n).filter((n, i, a) => a.indexOf(n) === i && !a.some(o => o !== n && o.contains(n)))
+      // a TDS rate that will be deducted always stays in view
+      .filter(n => { const t = n.querySelector && n.querySelector('#ptds'); return !(t && parseFloat(t.value) > 0) && !(n.id === 'ptdsh' && (f.querySelector('#ptds') || {}).value > 0) });
+    if (!nodes.length) return;
+    f.dataset.mo = '1';
+    const d = document.createElement('details'); d.className = 'more-opts'; d.innerHTML = '<summary>More options</summary><div class="mo-body"></div>';
+    const body = d.querySelector('.mo-body'); nodes.forEach(n => body.appendChild(n));
+    const anchor = f.querySelector(':scope > .ft'); f.insertBefore(d, anchor || null);
+  }
+  new MutationObserver(() => { const m = document.querySelector('#modal .modal'); if (!m) return; m.querySelectorAll('.pill.warn[title*="stands in"]').forEach(p => p.remove()); const eg = m.querySelector('label[for="eg"]'); if (eg && /largest/.test(eg.textContent)) eg.textContent = 'Expected guests'; moreOptions(m) }).observe(document.getElementById('modal'), { childList: true, subtree: true });
 
-  window.AURIV_SIMPLE = { on, markSync, statusOf };
+  /* dock: the same four places for everyone, plus More */
+  function dock(r) {
+    const tb = document.getElementById('tabbar'); if (!tb || !tb.children.length) return;
+    const items = navItems(); const by = {}; items.forEach(x => by[x[0]] = x);
+    const prim = (can('profit') ? ['home', 'events', 'vendors', 'overview'] : ['home', 'events', 'reimb', 'vendors']).filter(k => by[k]).slice(0, 4);
+    const h = (location.hash || '').replace('#', '');
+    const act = r === 'event' ? 'events' : prim.includes(r) ? r : 'more';
+    tb.innerHTML = prim.map(k => `<a href="#${k}" class="${act === k ? 'on' : ''}">${T(by[k][1])}${by[k][2] ? ` <span class="cnt">${by[k][2]}</span>` : ''}</a>`).join('') + `<a href="#tools" data-act="more-nav" class="${act === 'more' ? 'on' : ''}">${T('More')}${toolBadge() ? ' <span class="cnt">•</span>' : ''}</a>`;
+  }
+  PAGES_EXT.tools = vTools;
+  PAGES_EXT['company-full'] = () => _vOverview();
+
+  window.AURIV_SIMPLE = { on, markSync, statusOf, tools: () => toolsFor().flatMap(([g, l]) => l.map(t => ({ key: t[0], label: t[1], desc: t[2], group: g }))) };
 })();

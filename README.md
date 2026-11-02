@@ -5,14 +5,16 @@ The web app renders as a phone layout everywhere (framed on desktop) so it match
 
 **Live:** https://aurivevents.vercel.app/
 
-## Basic app (default) and advanced tools
-The app follows the *Basic App Build Guide*: Home (events) · New event · Event page with six numbers and
-Client money / Vendors / Expenses / Changes · Reimbursements · Vendor directory · Company overview (owner) · Settings.
-Two roles: **Owner** (everything) and **Staff** (adds events, vendors, payments and expenses; never sees profit).
-
-Everything else that already exists in the code (quotes, tasks, crew, run sheets, guests, client portal, bank
-reconciliation…) is hidden, not deleted. An owner can turn it on per company: **Settings → Advanced tools**.
-See `js/simple.js`.
+## How the app is organised
+- **Dock:** Home (today: first thing, money tiles, needs attention, coming up, cash weeks) · Events · Vendors ·
+  Company (owner) / Reimbursements (staff) · **More**.
+- **More** lists every other v5.10 tool, grouped: Work · Clients & sales · People & vendors · Money · Reports ·
+  Setup & admin. Each tool screen has a "‹ More" back button. Search finds tools too.
+- **Event page:** six numbers + Client / Vendors / Expenses / Changes, and **⋯** for Quote, Budget, Scope, Tasks,
+  Crew, Run sheet, Client approvals, Other income, Documents, Activity, Access, Guests, Production, Travel…
+- **Forms:** everyday fields first; the rest under **More options** (a TDS rate that will be deducted always stays visible).
+- **Settings:** company, team, categories, export, and **All settings** for the full v5.10 settings.
+Roles: Owner and Staff first; Event planner, Manager and Accountant are also available. See `js/simple.js`.
 
 ## Install as an app (PWA)
 Open the site on a phone → menu → **Install the app** (Android/Chrome) or **Add to Home Screen** (iPhone, Safari).

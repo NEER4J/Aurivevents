@@ -70,6 +70,7 @@
     try { (window.AURIV_HELP && AURIV_HELP.faq ? AURIV_HELP.faq() : []).forEach(f => add('Help', { icon: 'help', title: f[0], sub: 'Help', text: f[0] + ' ' + f[1].replace(/<[^>]+>/g, ''), go: { help: f[0] } })) } catch (e) {}
 
     navItems().forEach(([k, l]) => add('Screens', { icon: 'screen', title: l, sub: 'Open', text: l + ' ' + k, go: { route: k } }));
+    try { (window.AURIV_SIMPLE && AURIV_SIMPLE.tools ? AURIV_SIMPLE.tools() : []).forEach(t => add('Screens', { icon: 'screen', title: t.label, sub: t.group + ' · ' + t.desc, text: [t.label, t.desc, t.group, t.key].join(' '), go: { route: t.key } })) } catch (e) {}
     if (can('events.edit')) add('Screens', { icon: 'event', title: 'New event', sub: 'Add an event', text: 'new event add create wedding', go: { action: 'new-event' } });
     return out;
   }
@@ -126,6 +127,7 @@
   }
   function close() { if (!box) return; const b = box; box = null; b.classList.remove('in'); b.classList.add('out'); setTimeout(() => b.remove(), 260) }
   function draw() {
+    if (!box) return;
     const q = box.querySelector('#so-q').value.trim(); const body = box.querySelector('#so-body');
     if (!q) {
       const r = recent();

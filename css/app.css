@@ -794,7 +794,6 @@ details.pays summary{font-size:14px}
 .s-tabs .btn{font-size:14px!important;letter-spacing:-.01em!important;min-height:40px!important;border-radius:999px!important;padding:0 6px!important;color:var(--muted)!important;white-space:nowrap}
 .s-tabs .btn.pri{background:var(--ink)!important;color:var(--bg)!important}
 /* simple mode: sheet fields the build guide leaves out */
-html.simple .modal :is(label[for="rcur"],.sel:has(#rcur),details:has(#rcc),label:has(> #cph),label:has(> #ccp),label:has(> #cdep),label[for="cdl"],#cdl,div:has(> #ptds),#ptdsh){display:none!important}
 /* messages never block taps; while a sheet is open they show at the top */
 .toast{pointer-events:none}
 .device.modal-open .toast{bottom:auto;top:calc(var(--sb) + 14px + env(safe-area-inset-top,0px))}
@@ -862,7 +861,6 @@ html.simple .card:has(> .two.one > div > #vq){padding:0;background:none}
 /* no spinner arrows on number fields */
 input[type=number]{-moz-appearance:textfield;appearance:textfield}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-html.simple #f-event :is(label[for="epl"],.sel:has(#epl),.two:has(#epr),label.chk:has(#egst),.two:has(#ecg)){display:none!important}
 
 /* ---------- Help page ---------- */
 .help-lead{font-size:16.5px;line-height:1.5;color:var(--ink-2);margin:0 2px 4px}
@@ -938,3 +936,59 @@ html.simple #ab-inbox{display:none}
 .ab-search svg{width:20px!important;height:20px!important}
 .card.flash{animation:flash 1.4s ease}
 @keyframes flash{0%,40%{background:var(--fill-2)}100%{background:var(--panel)}}
+
+/* ---------- everything back, kept tidy ---------- */
+/* More screen */
+.tools-search{width:100%;display:flex;align-items:center;gap:10px;border:0;background:var(--panel);color:var(--muted);font:inherit;font-size:16px;height:50px;padding:0 18px;border-radius:999px;cursor:pointer;margin:0 0 4px}
+.tools-search svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.tools-card{padding:6px}
+.tool-row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:18px;color:var(--ink);transition:background-color .15s}
+.tool-row:hover{background:var(--fill)}
+.tool-row + .tool-row{position:relative}
+.tool-row + .tool-row::before{content:"";position:absolute;left:60px;right:10px;top:0;height:1px;background:var(--line)}
+.tr-ic{width:40px;height:40px;border-radius:12px;background:var(--fill);display:flex;align-items:center;justify-content:center;flex:none}
+.tr-ic svg{width:19px;height:19px;fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tr-tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.tr-tx b{font-weight:500;font-size:15.5px;letter-spacing:-.01em}
+.tr-tx small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-go{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.back-more{margin:0 0 12px;background:var(--panel)}
+/* event: four tabs + ⋯ */
+.s-tabs{display:flex!important}
+.s-tabs .btn{flex:1 1 0;min-width:0}
+.s-tabs .s-more{flex:0 0 44px;padding:0!important}
+.s-more svg{width:20px;height:20px;fill:currentColor}
+.x-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:2px 2px 12px}
+.x-head h2{font-size:22px;letter-spacing:-.03em}
+.s-tab-x > .tabs{margin-top:6px}
+/* more options inside sheets */
+details.more-opts{margin-top:18px;background:var(--fill);border-radius:20px;padding:4px 16px}
+details.more-opts > summary{padding:12px 0;font-size:14.5px}
+details.more-opts .mo-body{padding:0 0 14px}
+details.more-opts input,details.more-opts .sel-btn,details.more-opts textarea{background:var(--panel)}
+details.more-opts .mo-body > :first-child{margin-top:0}
+
+/* ---------- Home: today ---------- */
+.today-h{font-size:32px;margin:2px 0 16px}
+.first-thing{cursor:pointer;padding:18px 20px;border-radius:26px;background:var(--ink);color:var(--bg);transition:transform .2s var(--ease)}
+.first-thing:active{transform:scale(.98)}
+.first-thing.calm{background:var(--panel);color:var(--ink);cursor:default}
+.ft-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.ft-k{font-size:13px;opacity:.7}
+.first-thing .pill{background:color-mix(in srgb,var(--bg) 16%,transparent);color:var(--bg)}
+.first-thing .pill.bad{background:var(--red);color:#fff}
+.ft-t{font-size:20px;font-weight:500;letter-spacing:-.025em;line-height:1.2}
+.ft-s{font-size:14px;opacity:.75;margin-top:4px;line-height:1.45}
+.first-thing.calm .ft-s{color:var(--muted);opacity:1}
+.t-tiles{margin:10px 0 0}
+a.t-tile{color:var(--ink);display:block;transition:transform .2s var(--ease)}
+a.t-tile:active{transform:scale(.97)}
+a.t-tile.soft{color:var(--bg)}
+.cw{padding:8px 16px}
+.cw-row{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr;gap:6px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px}
+.cw-row > :not(:first-child){text-align:right;white-space:nowrap}
+.cw-row.head{border-top:0;font-size:12px;color:var(--muted);padding:6px 0 4px}
+.cw-row.strong > span:first-child{font-weight:500}
+.cw-row b{font-weight:500}
+.cw-row .neg{color:var(--red)}
+.sl-acts{display:flex;align-items:center;gap:12px}
