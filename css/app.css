@@ -740,7 +740,7 @@ html.simple .nav input#gq,html.simple .nav .eyebrow{display:none}
 .sp-s{font-size:12px;color:color-mix(in srgb,var(--bg) 60%,transparent)}
 .sp-v{text-align:right;white-space:nowrap}
 .sp-v .num{font-size:18px;font-weight:500;letter-spacing:-.02em}
-.sp-row.main .sp-v .num{font-size:24px}
+.sp-row.sp-main .sp-v .num{font-size:24px}
 .sp-p{display:block;font-size:12.5px;color:color-mix(in srgb,var(--bg) 65%,transparent)}
 .s-tabs{margin:20px -20px 12px!important}
 .s-tabs .btn{font-size:19px!important}
@@ -809,3 +809,34 @@ html.simple .modal :is(label[for="rcur"],.sel:has(#rcur),details:has(#rcc),label
 /* installed app: no desktop frame, ever */
 html.standalone .stage-info{display:none}
 .device[data-route="event"] .syncbar{top:calc(var(--sb) + 14px + env(safe-area-inset-top,0px))}
+
+/* ---------- spacing & size pass ---------- */
+/* fields side by side always line up; rows inside a grid get the same gap */
+:is(.grid,.two) > *{margin-top:0!important}
+.grid:has(> input),.two:has(> input),.grid:has(> .sel),.two:has(> .sel){gap:10px!important}
+.two.one{grid-template-columns:1fr}
+/* the search box on its own needs no card padding */
+html.simple .card:has(> .two.one > div > #vq){padding:0;background:none}
+/* per-function details in the event form */
+.card[data-fnd]{background:var(--fill);padding:14px!important;border-radius:20px;margin-bottom:10px!important}
+.card[data-fnd] > b{display:block;font-size:14.5px;font-weight:500;margin-bottom:10px}
+.card[data-fnd] input{background:var(--panel)}
+/* category chips: compact */
+.cat{padding:2px 2px 2px 12px;font-size:14px;gap:0}
+.cat button{width:30px;height:30px;font-size:16px}
+.cat-chips{gap:6px!important;margin-top:8px}
+.cat-add input,.cat-add .btn{min-height:44px}
+#s-cats h3{font-size:15px;margin-top:18px!important}
+/* event tabs: four equal segments */
+.s-tabs .btn{font-size:14.5px!important}
+
+/* ---------- dock v2: slimmer, light, clearly separate from black cards ---------- */
+.dock{background:color-mix(in srgb,var(--panel) 82%,transparent);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);border:1px solid var(--line-2);padding:4px}
+.tabbar a{height:44px;min-width:46px;padding:0 13px;color:var(--ink);opacity:.55;font-size:13.5px}
+.tabbar a.on{color:var(--bg);opacity:1;padding:0 15px 0 13px}
+.tabbar svg{width:20px!important;height:20px!important}
+.dock-ind{top:4px;left:4px;height:44px;width:46px;background:var(--ink)}
+.tabbar .tb{outline-color:var(--panel)}
+.tabbar a.on .tb{outline-color:var(--ink)}
+.main{padding-bottom:104px}
+.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}

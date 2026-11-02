@@ -140,14 +140,14 @@
         ${cell('Expenses so far', inr(c.expenses))}
       </div>
       ${owner ? `<div class="sn-profit">
-        <div class="sp-row main"><div><div class="sp-l">Actual profit</div><div class="sp-s">from what you've committed</div></div><div class="sp-v"><span class="num">${inr(c.actual)}</span><span class="sp-p">${pct(c.actual, c.contract)}</span></div></div>
+        <div class="sp-row sp-main"><div><div class="sp-l">Actual profit</div><div class="sp-s">from what you've committed</div></div><div class="sp-v"><span class="num">${inr(c.actual)}</span><span class="sp-p">${pct(c.actual, c.contract)}</span></div></div>
         <div class="sp-row"><div><div class="sp-l">Expected profit</div><div class="sp-s">from your estimates</div></div><div class="sp-v">${ex ? `<span class="num">${inr(ex.amt)}</span><span class="sp-p">${pct(ex.amt, ex.base)}</span>` : '<span class="num">—</span>'}</div></div>
       </div>` : ''}
     </div>`;
   }
   const TABS = () => {
     const t = [];
-    if (can('client')) t.push(['client', 'Client money']);
+    if (can('client')) t.push(['client', 'Client']);
     t.push(['vendors', 'Vendors'], ['expenses', 'Expenses']);
     if (isOwnerish()) t.push(['changes', 'Changes']);
     return t;
@@ -201,7 +201,8 @@
     const ms = S.milestones.filter(m => m.eventId === e.id).sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
     const rc = id => S.receipts.filter(r => r.milestoneId === id);
     return `<div class="card">
-      <div class="row between"><h2>Milestones</h2>${!lk ? '<button class="btn pri sm" data-act="add-ms">+ Add milestone</button>' : ''}</div>
+      <div class="row between"><h2>Client money</h2>${!lk ? '<button class="btn pri sm" data-act="add-ms">+ Milestone</button>' : ''}</div>
+      <p class="small muted" style="margin:2px 0 6px">How the client pays you, in instalments.</p>
       ${ms.length ? `<div class="list">${ms.map(m => {
         const k = msCalc(m); const done = k.left <= 0;
         return `<div class="item ${m.voided ? 'void' : ''}">
@@ -339,7 +340,8 @@
     app.querySelectorAll(':scope > .note, :scope > .alert').forEach(n => n.remove());
     const co = [...app.querySelectorAll('.card')].find(cd => ((cd.querySelector('h2,h3') || {}).textContent || '').trim() === 'Company');
     if (co) { const d = co.querySelector('h2,h3').nextElementSibling; if (d && !d.matches('.btn,.row')) d.innerHTML = `${esc(S.company.name)}<div class="meta">Duplicate payment check: ${S.company.dupHours || 72} hours</div>` }
-    app.insertAdjacentHTML('beforeend', categoriesCard() + exportCard() + advancedCard());
+    const holder = app.querySelector(':scope > .stack') || app;
+    holder.insertAdjacentHTML('beforeend', categoriesCard() + exportCard() + advancedCard());
   }
   act('s-adv', () => {
     const turningOn = on();
@@ -397,6 +399,11 @@
       // petty-cash float block inside the expenses card
       app.querySelectorAll('.s-tab-expenses [data-act="topup-float"], .s-tab-expenses [data-act="return-float"]').forEach(b => { const blk = b.closest('.row, div'); if (blk) blk.remove() });
       app.querySelectorAll('.s-tab-expenses .small.muted').forEach(m => { if (/^Petty cash floats/.test(m.textContent.trim())) { const nx = m.nextElementSibling; m.remove(); if (nx && /holds/.test(nx.textContent)) nx.remove() } });
+    }
+    if (r === 'vendors') {
+      const mg = app.querySelector('#vmin'); if (mg) { const col = mg.closest('.two > div'); if (col) { const two = col.parentElement; col.remove(); two.classList.add('one') } }
+      const q = app.querySelector('#vq'); if (q) { q.placeholder = 'Search vendors'; const l = app.querySelector('label[for="vq"]'); if (l) l.remove() }
+      app.querySelectorAll(':scope > .muted, :scope > div > .muted').forEach(m => { if (/^No vendors match/.test(m.textContent.trim()) && !S.vendors.length) m.outerHTML = '<div class="card empty-state"><div class="es-t">No vendors yet</div><div class="es-s">Everyone you pay — decorator, caterer, photographer. Saved once, reused on every event, with what you paid them each time.</div><button class="btn pri" data-act="add-dir-vendor">+ Add vendor</button></div>' });
     }
     if (r === 'vendors') app.querySelectorAll('.pill').forEach(p => { if (/^(performance:|verified|not verified|.*licence)/i.test(p.textContent.trim())) p.remove() });
   }
