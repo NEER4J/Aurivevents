@@ -11,6 +11,7 @@
     calendar: '<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
     inbox: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
     overview: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
     _: '<circle cx="12" cy="12" r="8.5"/>'
   };
@@ -52,7 +53,7 @@
       const key = a.dataset.act === 'more-nav' ? 'more' : (a.getAttribute('href') || '').slice(1);
       const cnt = a.querySelector('.cnt'); const c = cnt ? cnt.textContent : '';
       if (cnt) cnt.remove();
-      const label = a.textContent.replace('▾', '').trim();
+      const label = ({ Reimbursements: 'Reimburse' })[a.textContent.replace('▾', '').trim()] || a.textContent.replace('▾', '').trim();
       a.innerHTML = `<span class="ti">${svg(key)}${c ? `<b class="tb">${c === '•' ? '' : esc(c)}</b>` : ''}</span><span class="tl">${esc(label)}</span>`;
       a.dataset.dec = '1';
     });
@@ -60,6 +61,7 @@
     // Drawer footer: cloud account, company switcher, team access
     const foot = document.getElementById('side-account');
     const C = window.AURIV_CLOUD;
+    if (foot && !(C && C.user)) foot.innerHTML = installRow() ? `<div class="cloud-card">${installRow()}</div>` : '';
     if (foot && C && C.user) {
       const ws = workspaces(); const sh = C.currentShared();
       const owner = sh ? sh.owner_id === C.user.id : (u && u.role === 'owner' && !S.sample);
@@ -74,9 +76,27 @@
           ${sh && !owner ? '<button class="btn sm danger" data-ui-act="leave">Leave</button>' : ''}
           ${C.isDemo() ? '<button class="btn sm" data-ui-act="reset-demo">Reset demo</button>' : ''}
           <button class="btn sm" data-ui-act="signout">Sign out</button>
+        </div>${installRow()}<div style="display:none">
         </div></div>`);
     }
   }
+  /* ---------- install the app (PWA) ---------- */
+  const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function installRow() {
+    if (document.documentElement.classList.contains('standalone')) return '';
+    if (window.__installPrompt) return '<button class="install-row" data-ui-act="install"><span class="ir-ic"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span><span><b>Install the app</b><small>Opens full screen from your home screen</small></span></button>';
+    if (isIOS()) return '<button class="install-row" data-ui-act="install-ios"><span class="ir-ic"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 13v8h14v-8"/></svg></span><span><b>Add to Home Screen</b><small>Use it like an app on your iPhone</small></span></button>';
+    return '';
+  }
+  window.addEventListener('beforeinstallprompt', () => setTimeout(() => { try { decorate() } catch (e) {} }, 0));
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-ui-act="install"],[data-ui-act="install-ios"]'); if (!b) return;
+    if (b.dataset.uiAct === 'install-ios') { closeDrawer(); return openModal(`${hd('Add to Home Screen')}<ol class="ios-steps"><li>Tap the <b>Share</b> button <span class="muted">(the square with an arrow)</span> in Safari.</li><li>Scroll and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. Aurivevents now opens full screen, like an app.</li></ol><div class="ft"><button class="btn pri" data-act="close">Got it</button></div>`) }
+    const pr = window.__installPrompt; if (!pr) return;
+    pr.prompt(); const r = await pr.userChoice.catch(() => null); window.__installPrompt = null; document.documentElement.classList.remove('can-install');
+    if (r && r.outcome === 'accepted') toast('Installing Aurivevents'); try { decorate() } catch (err) {}
+  });
+
   document.addEventListener('change', e => {
     if (!e.target.matches('[data-ui-ws]')) return;
     closeDrawer(); switchWorkspace(e.target.value);

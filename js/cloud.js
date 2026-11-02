@@ -17,7 +17,7 @@
   const APP_SCRIPTS = ['core', 'x00_framework', 'x01_access', 'x02_data', 'x03_fixes', 'x04_scope', 'x05_vendors',
     'x06_sales', 'x07_finance', 'x08_crew', 'x09_eventday', 'x10_usability', 'x11_reporting', 'x12_guests',
     'x13_production', 'x14_about', 'x15_v56', 'x16_about56', 'x17_v57', 'x18_v58', 'x19_v59', 'x20_v510',
-    'ui', 'visual', 'x99_boot'];
+    'simple', 'ui', 'visual', 'x99_boot'];
 
   const initialHash = location.hash || '';
   const recovering = /type=recovery/.test(initialHash);
@@ -100,6 +100,8 @@
     subscribeRealtime();
     setState(navigator.onLine ? 'synced' : 'offline');
     if (CLOUD.firstRun) dirty.add('me');
+    // changes made offline in an earlier visit are still waiting: show them and send them
+    const pend = lsGet('auriv.cloud.pending'); if (pend) { CLOUD.pendingSince = pend; dirty.add('me') }
     Object.keys(byLid).forEach(l => { if (lsGet(M.dirty(l))) dirty.add(l) });
     if (dirty.size) push(true);
     reconcileFiles(curWS());
@@ -125,7 +127,7 @@
     const row = mine.data;
     if (row && row.data && Object.keys(row.data).length) {
       const localAt = sameUser ? lsGet(M.at) : null;
-      if (!(localAt && localAt > row.updated_at)) {
+      if (!(localAt && localAt > row.updated_at) && !(sameUser && lsGet('auriv.cloud.pending'))) {
         appKeys().filter(k => bucketOf(k) === 'me').forEach(lsDel);
         Object.entries(row.data).forEach(([k, v]) => { if (bucketOf(k) === 'me' && typeof v === 'string') lsSet(k, v) });
         lsSet(M.at, row.updated_at);
@@ -166,7 +168,7 @@
   function watchStorage() {
     const mark = k => {
       if (typeof k !== 'string' || !k.startsWith(PFX) || skip(k)) return;
-      const b = bucketOf(k); dirty.add(b); if (b !== 'me') lsSet(M.dirty(b), '1'); schedule();
+      const b = bucketOf(k); if (!CLOUD.pendingSince) { CLOUD.pendingSince = new Date(Date.now() - 2000).toISOString(); lsSet('auriv.cloud.pending', CLOUD.pendingSince) } dirty.add(b); if (b !== 'me') lsSet(M.dirty(b), '1'); schedule();
     };
     Storage.prototype.setItem = function (k, v) { rawSet.call(this, k, v); if (this === localStorage) mark(k) };
     Storage.prototype.removeItem = function (k) { rawRemove.call(this, k); if (this === localStorage) mark(k) };
@@ -190,7 +192,7 @@
       }
     })();
     try { await pushing } finally { pushing = null }
-    if (failed) { setState('error'); schedule(8000) } else setState(dirty.size ? 'saving' : 'synced');
+    if (failed) { setState('error'); schedule(8000) } else { setState(dirty.size ? 'saving' : 'synced'); if (!dirty.size) { CLOUD.pendingSince = null; lsDel('auriv.cloud.pending'); try { window.AURIV_SIMPLE && AURIV_SIMPLE.markSync() } catch (e) {} } }
   }
 
   async function pushMe() {

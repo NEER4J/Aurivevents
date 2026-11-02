@@ -708,3 +708,104 @@ form > label:first-child,form > p + label,.modal .hd + form > label:first-child{
 #app.no-anim *,#app.no-anim{animation:none!important}
 #app.no-anim .appear{animation:rise .4s var(--ease) both!important}
 .side{border-radius:0!important}
+
+/* =====================================================================
+   Simple mode (the basic app)
+   ===================================================================== */
+html.simple .nav input#gq,html.simple .nav .eyebrow{display:none}
+.sh-date{font-size:14px;color:var(--muted);margin:2px 0 2px}
+.simple-home .pg-head{margin:0 0 14px!important}
+.sh-chips{margin:0 -20px 16px!important;padding:0 20px!important}
+.empty-state{text-align:center;padding:36px 22px}
+.es-t{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.es-s{color:var(--muted);margin:6px 0 18px}
+
+/* event page */
+.ev-sub{color:var(--muted);font-size:14px;margin:0 2px 14px;line-height:1.45}
+.status-btn{gap:4px}
+.status-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.evh-bot .status-btn:disabled{opacity:1}
+.six{background:var(--panel);border-radius:26px;padding:6px;margin-bottom:6px}
+.sn-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.sn-cell{padding:14px 14px 12px;border-radius:20px;min-width:0}
+.sn-cell.tap{cursor:pointer;transition:background-color .2s}
+.sn-cell.tap:hover{background:var(--fill)}
+.sn-l{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.sn-edit{font-size:11.5px;color:var(--ink);background:var(--fill);border-radius:999px;padding:1px 8px}
+.sn-v{font-size:21px;font-weight:500;letter-spacing:-.03em;margin-top:4px;white-space:nowrap}
+.sn-profit{background:var(--ink);color:var(--bg);border-radius:20px;padding:4px 16px;margin-top:4px}
+.sp-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
+.sp-row + .sp-row{border-top:1px solid color-mix(in srgb,var(--bg) 16%,transparent)}
+.sp-l{font-size:14.5px;font-weight:500}
+.sp-s{font-size:12px;color:color-mix(in srgb,var(--bg) 60%,transparent)}
+.sp-v{text-align:right;white-space:nowrap}
+.sp-v .num{font-size:18px;font-weight:500;letter-spacing:-.02em}
+.sp-row.main .sp-v .num{font-size:24px}
+.sp-p{display:block;font-size:12.5px;color:color-mix(in srgb,var(--bg) 65%,transparent)}
+.s-tabs{margin:20px -20px 12px!important}
+.s-tabs .btn{font-size:19px!important}
+.status-opt{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;padding:14px 16px;border-radius:18px;cursor:pointer}
+.status-opt b{display:block;font-weight:500;font-size:16px}
+.status-opt small{color:var(--muted);font-size:13px}
+.status-opt svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.status-opt.on{background:var(--ink);color:var(--bg)}
+.status-opt.on small{color:color-mix(in srgb,var(--bg) 65%,transparent)}
+.status-opt.on svg{opacity:1}
+.ch-sum{margin-top:12px;background:var(--fill);border-radius:18px;padding:6px 14px}
+.ch-sum > div{display:flex;justify-content:space-between;padding:7px 0;font-size:14px}
+.ch-sum > div + div{border-top:1px solid var(--line-2)}
+.ch-sum .tot{font-size:15.5px}
+.ch-sum .tot b{font-size:17px}
+
+/* overview table */
+tfoot tr.tot td{font-weight:500;border-top:1.5px solid var(--ink)}
+table.stacked tfoot tr.tot{background:var(--fill);border-radius:16px;padding:12px 14px;margin-top:8px;border:0}
+
+/* settings */
+.cat-chips{gap:6px!important}
+.cat{display:inline-flex;align-items:center;gap:2px;background:var(--fill);border-radius:999px;padding:4px 4px 4px 13px;font-size:14px}
+.cat button{border:0;background:transparent;color:var(--muted);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:17px;line-height:1}
+.cat button:hover{background:var(--fill-2);color:var(--ink)}
+.cat-add{display:flex;gap:8px;margin-top:10px}
+.cat-add input{min-height:42px;padding:9px 14px;font-size:15px}
+.cat-add .btn{flex:none;min-height:42px}
+.switch{flex:none;width:52px;height:32px;border-radius:999px;border:0;background:var(--fill-2);position:relative;cursor:pointer;transition:background-color .25s}
+.switch i{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform .3s var(--ease)}
+.switch.on{background:var(--ink)}
+.switch.on i{transform:translateX(20px);background:var(--bg)}
+.adv-card .row.between{gap:16px;align-items:center}
+
+/* expenses waiting to sync */
+.sync-wait{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:12.5px;color:var(--ink-2);background:var(--fill);border-radius:999px;padding:3px 10px 3px 8px;animation:fadeIn .3s ease both}
+.sync-wait svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.amt{font-size:16px;font-weight:500;white-space:nowrap;text-align:right}
+.amt .muted{font-size:13px;font-weight:400}
+.v-nums{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;background:var(--fill);border-radius:16px;padding:12px 14px;margin:10px 0 2px}
+.v-nums span{display:block;font-size:12px;color:var(--muted)}
+.v-nums b{font-size:15.5px;font-weight:500;white-space:nowrap}
+.sub-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.sl-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;background:var(--fill);border-radius:14px;padding:10px 12px;font-size:14px}
+.sl-row .btn.sm{background:var(--panel);flex:none}
+.sl-row.void{opacity:.5;text-decoration:line-through}
+details.pays{margin-top:10px}
+details.pays summary{font-size:14px}
+/* segmented event tabs */
+.s-tabs{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px!important;background:var(--panel);border-radius:999px;padding:4px!important;margin:18px 0 12px!important;overflow:visible!important}
+.s-tabs .btn{font-size:14px!important;letter-spacing:-.01em!important;min-height:40px!important;border-radius:999px!important;padding:0 6px!important;color:var(--muted)!important;white-space:nowrap}
+.s-tabs .btn.pri{background:var(--ink)!important;color:var(--bg)!important}
+/* simple mode: sheet fields the build guide leaves out */
+html.simple .modal :is(label[for="rcur"],.sel:has(#rcur),details:has(#rcc),label:has(> #cph),label:has(> #ccp),label:has(> #cdep),label[for="cdl"],#cdl,div:has(> #ptds),#ptdsh){display:none!important}
+/* messages never block taps; while a sheet is open they show at the top */
+.toast{pointer-events:none}
+.device.modal-open .toast{bottom:auto;top:calc(var(--sb) + 14px + env(safe-area-inset-top,0px))}
+
+/* install the app */
+.install-row{display:flex;align-items:center;gap:12px;width:100%;border:0;background:var(--panel);color:var(--ink);font:inherit;text-align:left;padding:10px 12px;border-radius:16px;cursor:pointer;margin-top:4px}
+.install-row b{display:block;font-weight:500;font-size:14.5px}
+.install-row small{color:var(--muted);font-size:12.5px}
+.ir-ic{width:36px;height:36px;border-radius:12px;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;flex:none}
+.ir-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ios-steps{margin:4px 0 0;padding-left:22px;display:grid;gap:12px;font-size:15px;line-height:1.45}
+/* installed app: no desktop frame, ever */
+html.standalone .stage-info{display:none}
+.device[data-route="event"] .syncbar{top:calc(var(--sb) + 14px + env(safe-area-inset-top,0px))}

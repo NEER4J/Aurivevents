@@ -169,7 +169,7 @@
     const app = document.getElementById('app'); if (!app) return;
     let r = ''; try { r = route() } catch (e) {}
     enhanceEventCards(app);
-    if (r === 'home' && me() && me().role !== 'accountant') enhanceHome(app);
+    if (r === 'home' && me() && me().role !== 'accountant' && !(window.AURIV_SIMPLE && AURIV_SIMPLE.on())) enhanceHome(app);
     if (r === 'event') enhanceEvent(app);
     if (r === 'vendors') enhanceVendors(app);
     if (r === 'calendar') enhanceCalendar(app);

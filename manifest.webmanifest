@@ -1,1 +1,19 @@
-{"name":"Aurivevents","short_name":"Aurivevents","start_url":"./","display":"standalone","background_color":"#F4F4F4","theme_color":"#0A0A0A","icons":[{"src":"assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "id": "/",
+  "name": "Aurivevents",
+  "short_name": "Aurivevents",
+  "description": "See, at any moment, whether an event is making money or losing money.",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#F4F4F4",
+  "theme_color": "#F4F4F4",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

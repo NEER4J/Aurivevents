@@ -5,13 +5,31 @@ The web app renders as a phone layout everywhere (framed on desktop) so it match
 
 **Live:** https://aurivevents.vercel.app/
 
+## Basic app (default) and advanced tools
+The app follows the *Basic App Build Guide*: Home (events) · New event · Event page with six numbers and
+Client money / Vendors / Expenses / Changes · Reimbursements · Vendor directory · Company overview (owner) · Settings.
+Two roles: **Owner** (everything) and **Staff** (adds events, vendors, payments and expenses; never sees profit).
+
+Everything else that already exists in the code (quotes, tasks, crew, run sheets, guests, client portal, bank
+reconciliation…) is hidden, not deleted. An owner can turn it on per company: **Settings → Advanced tools**.
+See `js/simple.js`.
+
+## Install as an app (PWA)
+Open the site on a phone → menu → **Install the app** (Android/Chrome) or **Add to Home Screen** (iPhone, Safari).
+`sw.js` caches the app so it opens with no signal; expenses added offline show **Waiting to sync** and upload when
+the connection returns. When adding new files to the app, add them to the `SHELL` list in `sw.js` and bump `VERSION`.
+
 ## Structure
 ```
 index.html            App shell (device frame, app bar, drawer, tab bar)
 css/app.css           Design system
 js/config.js          Supabase URL + publishable key + demo credentials
 js/cloud.js           Supabase auth gate + cloud sync (loads the app scripts)
-js/ui.js              Mobile shell behaviour (drawer, icon tab bar, app bar)
+js/ui.js              Mobile shell behaviour (drawer, icon tab bar, app bar, install)
+js/simple.js          Basic app from the build guide (default) + advanced-tools switch
+js/visual.js          Photos, hero headers, ticket cards, layout tidying
+js/controls.js        Custom dropdowns, phone-friendly tables
+sw.js                 Service worker (offline app shell)
 js/core.js, js/x*.js  App modules (load order is defined in js/cloud.js)
 supabase/             Supabase CLI project (migrations)
 ```

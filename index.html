@@ -9,6 +9,11 @@
 <meta name="description" content="Aurivevents — run events end to end and know your margin.">
 <title>Aurivevents</title>
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Aurivevents">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,6 +75,15 @@
 <script src="js/config.js"></script>
 <script src="js/controls.js"></script>
 <script src="js/cloud.js"></script>
+<script>
+/* PWA: offline cache + install prompt */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(e => console.warn('sw', e)));
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__installPrompt = e; document.documentElement.classList.add('can-install') });
+window.addEventListener('appinstalled', () => { window.__installPrompt = null; document.documentElement.classList.remove('can-install') });
+if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) document.documentElement.classList.add('standalone');
+</script>
 <script>(function(){function t(){var d=new Date(),e=document.getElementById('sb-time');if(e)e.textContent=(d.getHours()%12||12)+':'+String(d.getMinutes()).padStart(2,'0')}t();setInterval(t,15000)})();</script>
 </body>
 </html>
