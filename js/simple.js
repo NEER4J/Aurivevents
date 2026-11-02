@@ -6,7 +6,7 @@
    The switch is per company (S.company.advanced). */
 (function () {
   const on = () => { try { return !(S && S.company && S.company.advanced === true) } catch (e) { return true } };
-  const SIMPLE_ROUTES = ['home', 'events', 'event', 'reimb', 'vendors', 'overview', 'settings'];
+  const SIMPLE_ROUTES = ['home', 'events', 'event', 'reimb', 'vendors', 'overview', 'settings', 'help'];
   const STATUS = { enquiry: 'enquiry', quoted: 'enquiry', confirmed: 'confirmed', planning: 'progress', eventweek: 'progress', done: 'done', closed: 'done', lost: 'cancelled', cancelled: 'cancelled' };
   const STATUS_LABEL = { enquiry: 'Enquiry', confirmed: 'Confirmed', progress: 'In progress', done: 'Done', cancelled: 'Cancelled' };
   const statusOf = e => STATUS[e.stage] || 'confirmed';
@@ -26,6 +26,7 @@
     if (can('vendors')) out.push(['vendors', 'Vendors', '']);
     if (can('profit')) out.push(['overview', 'Company', '']);
     if (me().role === 'owner') out.push(['settings', 'Settings', '']);
+    out.push(['help', 'Help', '']);
     return out;
   };
   const _route = route;
@@ -76,7 +77,7 @@
       <div class="row between pg-head"><h1>Events</h1>${can('events.edit') ? '<button class="btn pri" data-act="new-event">+ New event</button>' : ''}</div>
       <div class="chips sh-chips">${chips.map(([k, l]) => `<button class="btn chip ${f === k ? 'on' : ''}" data-act="sfilter" data-v="${k}">${l}</button>`).join('')}</div>
       ${list.length ? `<div class="stack">${list.map(card).join('')}</div>`
-        : `<div class="card empty-state"><div class="es-t">${all.length ? 'Nothing here' : 'No events yet'}</div><div class="es-s">${all.length ? 'Try another filter.' : 'Add your first event: the client, the date and what they are paying.'}</div>${!all.length && can('events.edit') ? '<button class="btn pri" data-act="new-event">+ New event</button>' : ''}</div>`}
+        : `<div class="card empty-state"><div class="es-t">${all.length ? 'Nothing here' : 'No events yet'}</div><div class="es-s">${all.length ? 'Try another filter.' : 'Add your first event: the client, the date and what they are paying.'}</div>${!all.length && can('events.edit') ? '<button class="btn pri" data-act="new-event">+ New event</button><a class="es-link" href="#help">How it works</a>' : ''}</div>`}
     </div>`;
   }
   act('sfilter', ({ v }) => { S.ui.sfilter = v; save(); render() });
