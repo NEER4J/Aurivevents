@@ -172,7 +172,13 @@
       const prev = prevPos[k];
       const set = p => { t.style.transform = `translate(${p.x}px,${p.y}px)`; t.style.width = p.w + 'px'; t.style.height = p.h + 'px' };
       t.style.transition = 'none';
-      if (prev && animate && (prev.x !== pos.x || prev.y !== pos.y || prev.w !== pos.w)) { set(prev); t.style.opacity = '1'; void t.offsetWidth; t.style.transition = ''; set(pos) }
+      if (prev && animate && (prev.x !== pos.x || prev.y !== pos.y || prev.w !== pos.w)) {
+        set(prev); t.style.opacity = '1'; void t.offsetWidth; t.style.transition = ''; set(pos);
+        /* labels change colour as the pill arrives, not before: the new one waits, the old one stays light a moment */
+        a.classList.add('tw'); const old = [...c.children].find(x => x !== t && x !== a && Math.abs(x.offsetLeft - prev.x) < 4);
+        if (old) old.classList.add('tw-on');
+        setTimeout(() => { a.classList.remove('tw'); if (old) old.classList.remove('tw-on') }, 170);
+      }
       else { set(pos); t.style.opacity = '1'; void t.offsetWidth; t.style.transition = '' }
       prevPos[k] = pos;
     });

@@ -2253,3 +2253,77 @@ table.wide-table td{background:none!important}
 table.wide-table tfoot td,table.wide-table tr.tot td{font-weight:500;border-top:1px solid var(--line);border-bottom:0}
 :is(.v-legacy,.modal) .card > .scroll + .small,:is(.v-legacy,.modal) .card > table + .small,:is(.v-legacy,.modal) .card > .scroll + div:not([class]),:is(.v-legacy,.modal) .card > table + div:not([class]){margin-top:0;padding:12px 0 0;border-top:1px solid var(--line);font-weight:500;color:var(--ink)}
 :is(.v-legacy,.modal) .card > .scroll + .meta,:is(.v-legacy,.modal) .card > table + .meta{margin-top:0;padding:12px 0 0;border-top:1px solid var(--line);font-size:14px;font-weight:500;color:var(--ink);text-align:right}
+
+/* ===================== brand: dark green for every accent ===================== */
+:root{--brand:#1B5E45;--brand-2:#164D39;--brand-soft:#E3EFE9;--brand-ink:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--brand:#2F8462;--brand-2:#3A9571;--brand-soft:#16271F;--brand-ink:#FFFFFF}}
+:root[data-theme="dark"]{--brand:#2F8462;--brand-2:#3A9571;--brand-soft:#16271F;--brand-ink:#FFFFFF}
+body{--accent:var(--brand);--accent-ink:var(--brand-ink);--accent-soft:var(--brand-soft);--accent-deep:var(--brand)}
+
+/* buttons */
+.btn.pri{background:var(--brand)!important;color:var(--brand-ink)!important;border-color:var(--brand)!important}
+.btn.pri:hover{background:var(--brand-2)!important}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[role=button]:focus-visible,a:focus-visible{outline-color:var(--brand)!important}
+input:focus,select:focus,textarea:focus{border-color:var(--brand)!important}
+
+/* sliding pills: green; labels switch colour as the pill arrives */
+.seg-thumb,.v-seg.has-thumb > .seg-thumb,.theme-seg.has-thumb > .seg-thumb{background:var(--brand)!important}
+.v-seg.has-thumb > button,.theme-seg.has-thumb > button{mix-blend-mode:normal!important;color:var(--muted)!important;transition:color .18s ease!important}
+.v-seg.has-thumb > button:hover,.theme-seg.has-thumb > button:hover{color:var(--ink)!important}
+.v-seg.has-thumb > :is([aria-pressed="true"],[aria-selected="true"],.on),.theme-seg.has-thumb > [aria-pressed="true"]{color:var(--brand-ink)!important}
+.has-thumb > .tw{color:var(--muted)!important;transition:none!important}
+.has-thumb > .tw-on{color:var(--brand-ink)!important;transition:none!important}
+.v-seg button[aria-pressed="true"],.theme-seg button[aria-pressed="true"]{background:var(--brand)}
+.has-thumb > :is([aria-pressed="true"],[aria-selected="true"],.on){background:transparent!important}
+
+/* tabs, chips, tiles, steps, picker */
+.v-tab[aria-selected="true"]{background:var(--brand)!important;color:var(--brand-ink)!important}
+.btn.chip.on,.ev-chips .btn.chip.on,.v-filters .fchip.on{background:var(--brand)!important;color:var(--brand-ink)!important}
+.v93-tiles > button[aria-pressed="true"]{background:var(--brand)!important;color:var(--brand-ink)!important}
+.v93-tiles > button[aria-pressed="true"].late b{color:#FFD0D2!important}
+.steps .st.on{background:var(--brand)!important;color:var(--brand-ink)!important}
+.pk-opt.on{background:var(--brand)!important;color:var(--brand-ink)!important}
+.status-opt.on{background:var(--brand);color:var(--brand-ink)}
+.switch.on{background:var(--brand)}
+.tick.on,.v-tick[aria-checked="true"] span{background:var(--brand)!important;border-color:var(--brand)!important;color:#fff!important}
+input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
+
+/* dock and side menu */
+.dock-ind{background:var(--brand)!important}
+.dock .dock-tabs a.on{color:var(--brand-ink)!important}
+.dock .dock-tabs a.on .tb{outline-color:var(--brand)}
+@media (min-width:1100px){
+  #rail .rail-nav a.on{background:var(--brand-soft)!important;color:var(--brand)!important;font-weight:500}
+  #rail .rail-nav a.on .ri svg{stroke:var(--brand)}
+  #rail a.rail-inbox.on{background:var(--brand)!important;color:var(--brand-ink)}
+}
+:root[data-theme="dark"] #rail .rail-nav a.on,:root:not([data-theme="light"]) #rail .rail-nav a.on{color:var(--ink)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) #rail .rail-nav a.on{color:var(--brand)!important}}
+:root[data-theme="light"] #rail .rail-nav a.on{color:var(--brand)!important}
+
+/* avatars, money boxes, highlight tiles */
+.ab-avatar,.rm-av,.acct-sheet .ac-av{background:var(--brand)!important;color:var(--brand-ink)!important}
+.sn-profit{background:var(--brand)!important;color:var(--brand-ink)!important}
+.sn-profit .sp-s,.sn-profit .sp-p{color:color-mix(in srgb,#fff 72%,transparent)!important}
+.sp-row + .sp-row{border-top-color:color-mix(in srgb,#fff 18%,transparent)!important}
+.card.stat.soft,:is(.v-legacy,.modal) .card.stat.soft,.v-legacy > .grid > .card.stat.soft{background:var(--brand)!important;color:var(--brand-ink)!important}
+:is(.v-legacy,.modal) .card.stat.soft .lbl,:is(.v-legacy,.modal) .card.stat.soft .sub{color:color-mix(in srgb,#fff 72%,transparent)!important}
+.first-thing{background:var(--brand)}
+
+/* calendar */
+.v-month button.today b{background:var(--brand)!important;color:var(--brand-ink)!important}
+.v-month button.sel b{outline-color:var(--brand)}
+.ci-ev{background:var(--brand)!important;color:var(--brand-ink)!important}
+.cal-day.today .cd-date{background:var(--brand);color:var(--brand-ink)}
+.cd-ev{background:var(--brand);color:var(--brand-ink)}
+
+/* event hero and home */
+.evh-acts .evh-st{background:#fff!important;color:var(--brand)!important}
+.nc-date{color:var(--brand)}
+
+/* sign-in */
+.auth .btn.pri,.login .btn.pri,.login-sample .btn.big{background:var(--brand)!important;color:var(--brand-ink)!important}
+.auth-demo .ad-ic{background:var(--brand-soft)!important;color:var(--brand)!important}
+.file-field.has .ff-ic{background:var(--brand);color:var(--brand-ink)}
+.file-field:hover,.file-field.drag{border-color:var(--brand)}
+.boot-word{color:var(--brand)}
