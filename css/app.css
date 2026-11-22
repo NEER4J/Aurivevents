@@ -2240,3 +2240,16 @@ table.wide-table tbody tr:hover td{background:var(--fill)}
 .v-filters .sel-btn{min-height:52px;border-radius:999px;background:var(--panel)}
 .v-search input{min-height:52px;border-radius:999px;background:var(--panel);padding:0 22px;border:0}
 @media (max-width:759px){.v-page:has(> .v-search + .v-filters){grid-template-columns:1fr}.v-page:has(> .v-search + .v-filters) > .v-filters{grid-column:1}}
+
+/* notes directly on a page line up with the content */
+.v-body > .v-note,.v-list > .v-note{padding:10px 2px!important}
+/* the coming-up row fades at the edge so it reads as scrollable */
+@media (min-width:760px){.hscroll{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 72px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 72px),transparent);padding-right:72px!important}}
+/* tables: aligned with the card, no grey band, totals as a footer */
+table.wide-table tbody tr:hover td{background:none}
+table.wide-table tr > :first-child{padding-left:0}
+table.wide-table tr > :last-child{padding-right:0}
+table.wide-table td{background:none!important}
+table.wide-table tfoot td,table.wide-table tr.tot td{font-weight:500;border-top:1px solid var(--line);border-bottom:0}
+:is(.v-legacy,.modal) .card > .scroll + .small,:is(.v-legacy,.modal) .card > table + .small,:is(.v-legacy,.modal) .card > .scroll + div:not([class]),:is(.v-legacy,.modal) .card > table + div:not([class]){margin-top:0;padding:12px 0 0;border-top:1px solid var(--line);font-weight:500;color:var(--ink)}
+:is(.v-legacy,.modal) .card > .scroll + .meta,:is(.v-legacy,.modal) .card > table + .meta{margin-top:0;padding:12px 0 0;border-top:1px solid var(--line);font-size:14px;font-weight:500;color:var(--ink);text-align:right}
