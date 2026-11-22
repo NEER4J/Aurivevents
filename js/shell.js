@@ -27,6 +27,8 @@
     sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
     auto: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    clients: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/>',
     _: '<circle cx="12" cy="12" r="2.5"/>'
   };
   ICON.setup = ICON.settings; ICON.flows = ICON.help;
@@ -83,23 +85,24 @@
   function railItems() {
     const u = me(); const ok = k => typeof reachable !== 'function' || reachable(k);
     let att = 0; try { att = attnCounts().things } catch (e) {}
-    const main = [['home', 'Home'], ['events', 'Events'], ['mytasks', 'Tasks'], ['calendar', 'Calendar']];
-    if (can('vendors')) main.push(['vendors', 'Vendors']);
-    if (can('profit') || u.role === 'manager') main.push(['overview', 'Company']);
-    main.push(['stuck', 'Needs attention', att]);
+    let signoffs = ''; try { const n = navSheetRows().flatMap(g => g[1]).find(r => r[0] === 'approvals'); signoffs = n && n[2] || '' } catch (e) {}
+    const plan = [['home', 'Home'], ['events', 'Events'], ['mytasks', 'Tasks'], ['calendar', 'Calendar'], ['week', 'Week board'], ['stuck', 'Needs attention', att], ['approvals', 'Sign-offs', signoffs]];
+    const biz = []; if (can('vendors')) biz.push(['vendors', 'Vendors']); biz.push(['clients', 'Clients'], ['crew', 'Crew'], ['reimb', 'Reimbursements']); if (can('profit') || u.role === 'manager') biz.push(['overview', 'Company']);
     const rest = [['tools', 'More']]; if (u.role === 'owner') rest.push(['settings', 'Setup']);
-    return [main.filter(([k]) => k === 'home' || ok(k)), rest.filter(([k]) => k === 'tools' || ok(k))];
+    return [['Work', plan.filter(([k]) => k === 'home' || ok(k))], ['People & money', biz.filter(([k]) => ok(k) && (k !== 'clients' || can('client') || can('profit')) && (k !== 'crew' || can('crew.manage') || can('crew.assign') || can('profit')))], ['', rest.filter(([k]) => k === 'tools' || ok(k))]].filter(g => g[1].length);
   }
   renderRail = function () {
     const r = document.getElementById('rail'); if (!r) return;
     if (!currentSession() || document.querySelector('#app .login')) { r.innerHTML = ''; return }
     let cur = ''; try { cur = route() } catch (e) {}
-    const [main, rest] = railItems(); const keys = main.concat(rest).map(x => x[0]);
+    const groups = railItems(); const keys = groups.flatMap(g => g[1].map(x => x[0]));
     const on = k => cur === k || (cur === 'event' && k === 'events') || (cur === 'vendor' && k === 'vendors') || (k === 'tools' && !keys.includes(cur) && cur !== 'event' && cur !== 'vendor');
     const link = ([k, l, c]) => `<a href="#${k}" class="${on(k) ? 'on' : ''}"><span class="ri">${icon(k)}</span><span class="rl">${esc(T(l))}</span>${c ? `<span class="cnt">${c}</span>` : ''}</a>`;
     const u = me();
+    let un = 0; try { un = unread() } catch (e) {}
     r.innerHTML = `<div class="rail-brand">Aurivevents<small>${esc(S.company.name)}</small></div>
-      <nav class="rail-nav">${main.map(link).join('')}</nav><div class="rail-sep"></div><nav class="rail-nav">${rest.map(link).join('')}</nav>
+      <div class="rail-tools"><button type="button" class="rail-search" data-act="sc-search">${icon('search')}<span>${T('Search')}</span><kbd>⌘K</kbd></button><a href="#inbox" class="rail-inbox ${cur === 'inbox' ? 'on' : ''}" aria-label="${T('Inbox')}">${icon('inbox')}${un ? '<i></i>' : ''}</a></div>
+      ${groups.map(([l, items], i) => `${i ? '<div class="rail-sep"></div>' : ''}${l ? `<div class="rail-grp">${esc(T(l))}</div>` : ''}<nav class="rail-nav">${items.map(link).join('')}</nav>`).join('')}
       <button type="button" class="rail-me" id="rail-me"><span class="rm-av">${esc(initials(u.name))}</span><span class="rm-tx"><b>${esc(u.name)}</b><small>${esc(ROLES[u.role].label)}</small></span></button>`;
   };
   function rail() { try { renderRail() } catch (e) { console.error('rail', e) } }

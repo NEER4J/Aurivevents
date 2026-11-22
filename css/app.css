@@ -2112,3 +2112,131 @@ body.no-shell .login{max-width:560px;margin:0 auto;padding:48px 0 64px!important
 .v-tabs > .seg-thumb,.ev-chips > .seg-thumb,.v-filters > .seg-thumb,.v93-tiles > .seg-thumb{display:none}
 .v-tab[aria-selected="true"],.ev-chips .btn.chip.on,.v-filters .fchip.on{animation:tabOn .32s var(--ease)}
 @keyframes tabOn{0%{transform:scale(.94)}60%{transform:scale(1.03)}100%{transform:none}}
+
+/* ===================== organisation pass ===================== */
+/* tables: real tables on tablet and desktop */
+table.wide-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+table.wide-table th{font-size:12.5px;color:var(--muted);font-weight:400!important;text-transform:none;letter-spacing:0;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:none}
+table.wide-table td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.wide-table tr:last-child td{border-bottom:0}
+table.wide-table tbody tr:hover td{background:var(--fill)}
+.scroll.scroll-wide{overflow-x:auto;margin:0;padding:0;border-radius:18px}
+/* back button on its own row; sub line and title line up under it */
+.pg-backrow{flex:0 0 100%;order:-3;display:flex;margin-bottom:2px}
+.pg-backrow > a.v-ib{width:42px;height:42px;border-radius:50%;background:var(--panel);margin:0}
+.v-top:has(.pg-backrow) .ttl{font-size:34px!important;flex-basis:auto}
+/* step lines become quiet chips */
+.steps{display:flex!important;flex-wrap:wrap;gap:6px!important;margin:10px 0 2px}
+.steps .st{display:inline-flex!important;align-items:center;padding:5px 12px!important;border-radius:999px;background:var(--fill)!important;color:var(--muted)!important;font-weight:400!important;font-size:13px}
+.steps .st::before,.steps .st::after{content:none!important;display:none!important}
+.steps .st.done{color:var(--ink)!important}
+.steps .st.on{background:var(--ink)!important;color:var(--bg)!important}
+.steps .st.bad{background:var(--red-soft)!important;color:var(--red)!important}
+/* notes and alerts: soft rounded blocks, no side bar */
+.v-legacy .note,.v-legacy .alert,.modal .note,.modal .alert{border:0!important;border-radius:18px!important;padding:14px 16px!important;background:var(--fill)!important;margin:12px 0!important;font-size:14px;line-height:1.55}
+.v-legacy .alert,.modal .alert{background:var(--red-soft)!important}
+.v-legacy .card > b:first-child,.v-legacy .card > .t:first-child{display:block;font-size:16.5px;font-weight:500;margin-bottom:4px}
+.v-legacy .card > .small,.v-legacy .card > .muted{line-height:1.55}
+.v-legacy .card > .pill,.v-legacy .card .small > .pill{margin:6px 0}
+.pill{padding:4px 12px}
+/* attention items: no grey box inside the card */
+.v-ban,.v-ban.wait,.v-ban.late,.v-ban.block,.v-ban.ok{background:transparent!important}
+.v-ban:hover{background:var(--fill)!important}
+/* money lists: quiet column heads, a calm total */
+.v-rowhead{text-transform:none!important;letter-spacing:0!important;font-size:12.5px!important;font-weight:400!important;color:var(--muted)!important;padding:10px 14px 4px!important}
+.v-tot{border-top:0!important;margin:6px 4px 4px;border-radius:16px;background:var(--fill);padding:14px 16px!important;font-weight:500}
+.v-tot .amt{font-size:17px}
+/* account sheet card */
+.acct-sheet .tools-card{border-radius:22px!important;padding:6px!important;margin:0!important;border:0!important}
+.acct-sheet .tool-row{border-radius:16px}
+/* side menu groups */
+@media (min-width:1100px){
+  .rail-grp{font-size:12px;color:var(--muted);padding:0 12px 8px;letter-spacing:.01em}
+  .rail-sep{height:1px;background:var(--line);margin:18px 12px}
+  .rail-nav + .rail-sep{margin-top:18px}
+}
+
+/* ===================== full-view pages and sheets: organised ===================== */
+.clamp{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.clamp.open{display:block!important}
+.clamp-more{border:0;background:none;color:var(--ink);font:inherit;font-size:13.5px;font-weight:500;padding:2px 0;margin:0 0 10px;cursor:pointer;display:block}
+.clamp-more:hover{text-decoration:underline;text-underline-offset:3px}
+/* demo-only stand-in labels stay out of the way */
+.pill[title*="stands in"],.pill.warn[title*="sandbox"]{display:none!important}
+/* card headers: title left, actions right */
+:is(.v-legacy,.modal) .card > .row.between:first-child{display:flex!important;justify-content:space-between;align-items:center;gap:10px 16px;flex-wrap:wrap;margin:0 0 10px!important}
+:is(.v-legacy,.modal) .card > .row.between:first-child > :is(h2,h3,div:has(> h2),div:has(> h3)){flex:1 1 260px;min-width:0}
+:is(.v-legacy,.modal) .card > .row.between:first-child h2,:is(.v-legacy,.modal) .card > .row.between:first-child h3{margin:0}
+:is(.v-legacy,.modal) .card > .row.between:first-child > .row{flex:none;gap:6px!important;justify-content:flex-end}
+:is(.v-legacy,.modal) .card h3{font-size:16.5px;margin:0 0 4px}
+:is(.v-legacy,.modal) .card > .small,:is(.v-legacy,.modal) .card > .muted{color:var(--muted);font-size:13.5px;line-height:1.55;margin:4px 0 10px;max-width:78ch}
+/* list items: text left, actions right */
+:is(.v-legacy,.modal) .item > .row.between{display:flex!important;flex-wrap:nowrap;align-items:flex-start;gap:16px}
+:is(.v-legacy,.modal) .item > .row.between > :first-child{flex:1 1 auto;min-width:0}
+:is(.v-legacy,.modal) .item > .row.between > :last-child:not(:first-child){flex:0 1 auto;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center;max-width:52%;text-align:right}
+:is(.v-legacy,.modal) .item .t{font-size:15.5px;font-weight:500;line-height:1.35}
+:is(.v-legacy,.modal) .item .meta{font-size:13px;line-height:1.5}
+:is(.v-legacy,.modal) .item .btn{min-height:36px;padding:0 14px;font-size:13.5px}
+:is(.v-legacy,.modal) .item .btn.pri{white-space:normal;text-align:left;line-height:1.3;padding:8px 14px}
+:is(.v-legacy,.modal) .list{gap:0}
+:is(.v-legacy,.modal) .item + .item{border-top:1px solid var(--line)}
+@media (max-width:759px){
+  :is(.v-legacy,.modal) .item > .row.between{flex-wrap:wrap}
+  :is(.v-legacy,.modal) .item > .row.between > :last-child:not(:first-child){max-width:100%;justify-content:flex-start;text-align:left}
+}
+/* stat grids: even tiles */
+:is(.v-legacy,.modal) .grid:has(> .stat){grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important;gap:10px!important}
+:is(.v-legacy,.modal) .stat{background:var(--fill)!important;border-radius:20px!important;padding:16px!important;margin:0!important}
+.v-legacy > .grid > .stat{background:var(--panel)!important}
+/* chips and filter rows inside cards */
+:is(.v-legacy,.modal) .chips{gap:6px!important;margin:8px 0}
+:is(.v-legacy,.modal) .card > .row:not(.between){gap:8px!important;margin:8px 0}
+/* key/value blocks */
+:is(.v-legacy,.modal) .kv{display:grid;grid-template-columns:minmax(0,160px) minmax(0,1fr);gap:10px 18px;font-size:14px;margin:10px 0}
+:is(.v-legacy,.modal) .kv > b{color:var(--muted);font-weight:400!important}
+/* details summaries */
+:is(.v-legacy,.modal) details{background:var(--fill);border-radius:18px;padding:4px 16px;margin:10px 0}
+:is(.v-legacy,.modal) details > summary{padding:12px 0;font-size:14.5px}
+.v-page .v-legacy > h1:first-of-type{display:none}
+:is(.v-legacy,.modal) .card.stat.soft,.v-legacy > .grid > .card.stat.soft{background:var(--ink)!important;color:var(--bg)!important}
+:is(.v-legacy,.modal) .card.stat.soft .lbl,:is(.v-legacy,.modal) .card.stat.soft .sub{color:color-mix(in srgb,var(--bg) 65%,transparent)!important}
+
+/* ===================== desktop: no top bar; the side menu carries search and inbox ===================== */
+@media (min-width:1100px){
+  .appbar{display:none!important}
+  .shell > .main{padding-top:36px!important}
+  body[data-route="event"] .shell > .main{padding-top:20px!important}
+  #rail{background:var(--panel)!important;border-right:1px solid var(--line)!important;padding:26px 14px 18px!important}
+  .rail-brand{padding:0 12px 18px!important}
+  .rail-tools{display:flex;gap:8px;padding:0 4px 18px}
+  .rail-search{flex:1;display:flex;align-items:center;gap:10px;height:42px;padding:0 12px;border:0;border-radius:12px;background:var(--fill);color:var(--muted);font:inherit;font-size:14.5px;cursor:pointer;transition:background-color .2s}
+  .rail-search:hover{background:var(--fill-2)}
+  .rail-search svg,.rail-inbox svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .rail-search span{flex:1;text-align:left}
+  .rail-search kbd{font:inherit;font-size:11.5px;color:var(--muted);background:var(--panel);border-radius:6px;padding:1px 6px}
+  #rail a.rail-inbox{position:relative;width:42px;height:42px;padding:0;justify-content:center;border-radius:12px;background:var(--fill)!important;color:var(--ink)}
+  #rail a.rail-inbox.on{background:var(--ink)!important;color:var(--bg)}
+  .rail-inbox i{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--red);outline:2px solid var(--fill)}
+  #rail .rail-nav a{height:40px}
+  #rail .rail-nav a.on,#rail .rail-nav a:hover{background:var(--fill)!important}
+  .rail-grp{padding:0 12px 6px!important}
+  .rail-sep{margin:14px 12px!important}
+}
+
+/* buttons inside content: calm sizes */
+.v-body .card .btn:not(.big),.v-body .ui-card .btn:not(.big),.v-legacy .btn:not(.big),.modal .card .btn:not(.big),.v-body .v-kv .btn{min-height:38px;padding:0 16px;font-size:14px}
+.v-body .card > .row.between:first-child .btn,.v-legacy .card > .row.between:first-child .btn{min-height:40px}
+/* status words without a state: no dot, no gap */
+.v-st.none::before,.v-st:not(.ok):not(.wait):not(.late):not(.block)::before{display:none}
+/* key/value rows inside cards: label column and tidy actions */
+.v-kv dd{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.v-kv dd > div{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;width:100%}
+/* search + filter on one row */
+.v-page:has(> .v-search + .v-filters){display:grid!important;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;align-items:start}
+.v-page:has(> .v-search + .v-filters) > *{grid-column:1/-1}
+.v-page:has(> .v-search + .v-filters) > .v-search{grid-column:1}
+.v-page:has(> .v-search + .v-filters) > .v-filters{grid-column:2;margin:0;padding:0 0 10px;overflow:visible}
+.v-filters .sel{width:auto!important;min-width:180px}
+.v-filters .sel-btn{min-height:52px;border-radius:999px;background:var(--panel)}
+.v-search input{min-height:52px;border-radius:999px;background:var(--panel);padding:0 22px;border:0}
+@media (max-width:759px){.v-page:has(> .v-search + .v-filters){grid-template-columns:1fr}.v-page:has(> .v-search + .v-filters) > .v-filters{grid-column:1}}

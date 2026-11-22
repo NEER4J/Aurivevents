@@ -139,6 +139,8 @@
     bar.remove();
   }
   /* page title: the sub line sits above the title, like v5.10 */
+  function backRow(app) { app.querySelectorAll('.v-top > a.v-ib[aria-label="Back"]').forEach(b => { const row = document.createElement('div'); row.className = 'pg-backrow'; b.parentElement.insertBefore(row, b.parentElement.firstChild); row.appendChild(b) }) }
+  function unescapeTitles(app) { app.querySelectorAll('.v-top .ttl, .pg-sub').forEach(t => { if (/&amp;(amp|lt|gt|quot|#39);/.test(t.innerHTML)) t.innerHTML = t.innerHTML.replace(/&amp;(amp|lt|gt|quot|#39);/g, '&$1;') }) }
   function titles(app) { app.querySelectorAll('.v-top .ttl').forEach(t => { const s = t.querySelector('small'); if (!s) return; const d = document.createElement('div'); d.className = 'pg-sub'; d.innerHTML = s.innerHTML; s.remove(); t.parentElement.insertBefore(d, t.parentElement.firstChild) }) }
 
   /* ---------------- Home: greeting, next up, coming up ---------------- */
@@ -225,6 +227,18 @@
     if (sl) [...sl.querySelectorAll(':scope > .ui-group')].filter(g => /^(Sample|Excel import)/i.test((g.querySelector('.eyebrow') || {}).textContent || '')).forEach(g => sl.appendChild(g));
   }
 
+  /* ---------------- long explanations: two lines, then "More" ---------------- */
+  function clampText(root) {
+    if (!root) return;
+    root.querySelectorAll('.v-legacy .small.muted, .v-legacy .muted, .v-legacy .help, .v-legacy .card > .small, .modal .small.muted, .modal .help, .modal p.small').forEach(el => {
+      if (el.dataset.cl || el.closest('.clamp') || el.closest('.item') || el.querySelector('button, input, select, textarea, a.btn, .btn') || el.textContent.trim().length < 170) return;
+      el.dataset.cl = '1'; el.classList.add('clamp');
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'clamp-more'; b.textContent = T('More');
+      b.addEventListener('click', ev => { ev.stopPropagation(); const o = el.classList.toggle('open'); b.textContent = o ? T('Less') : T('More') });
+      el.after(b);
+    });
+  }
+
   /* ---------------- the detail drawer (tablet and desktop) ---------------- */
   function drawer() {
     const p = document.getElementById('panel'); if (!p) return;
@@ -268,15 +282,16 @@
     let r = ''; try { r = route() } catch (e) {}
     app.querySelectorAll('.v-page > .v-body > .v-list, .v-page > .v-body > div > .v-list').forEach(group);
     if (big()) homePanelIn(app);
-    actions(app); titles(app);
+    actions(app); titles(app); unescapeTitles(app); backRow(app);
     if (r === 'home') home(app);
     if (r === 'event') eventPage(app);
     if (r === 'settings') setupOrder(app);
     if (r === 'calendar') calendar(app);
+    clampText(app);
     drawer();
   }
   const _render = render; render = function () { const r = _render.apply(this, arguments); try { layout() } catch (e) { console.error('screens', e) } return r };
-  const _open = openModal; openModal = function () { const r = _open.apply(this, arguments); try { drawer() } catch (e) {} return r };
+  const _open = openModal; openModal = function () { const r = _open.apply(this, arguments); try { drawer(); clampText(document.getElementById('panel')); clampText(document.getElementById('modal')) } catch (e) {} return r };
   const _close = closeModal; closeModal = function () { const r = _close.apply(this, arguments); try { drawer() } catch (e) {} return r };
   window.addEventListener('hashchange', () => { const m = document.querySelector('#modal .modal, #panel .modal:not([data-home-panel])'); if (m && !m.querySelector('form, input, textarea, select')) { try { closeModal() } catch (e) {} } });
   let wasBig = big(); window.addEventListener('resize', () => { if (big() !== wasBig) { wasBig = big(); try { render() } catch (e) {} } });

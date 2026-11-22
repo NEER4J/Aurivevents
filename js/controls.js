@@ -107,6 +107,7 @@
     const cols = head ? head.cells.length : (t.rows[0] ? t.rows[0].cells.length : 0);
     if (cols < 3) { t.classList.add('tbl-2'); return }
     const names = head ? [...head.cells].map(c => c.textContent.trim()) : [];
+    if (window.innerWidth >= 760) { t.classList.add('wide-table'); const sc0 = t.closest('.scroll'); if (sc0) sc0.classList.add('scroll-wide'); return }
     t.classList.add('stacked');
     [...t.querySelectorAll('tbody tr, tfoot tr')].forEach(tr => {
       [...tr.cells].forEach((td, i) => { if (!td.hasAttribute('data-label')) td.setAttribute('data-label', names[i] || '') ; if (!td.textContent.trim() && !td.querySelector('button,input,select,a')) td.classList.add('blank') });
