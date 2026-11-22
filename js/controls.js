@@ -114,13 +114,35 @@
     const sc = t.closest('.scroll'); if (sc) sc.classList.add('scroll-stacked');
   }
 
+  /* ---------------- upload fields: a drop zone with the file name ---------------- */
+  const upIc = '<svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>';
+  const camIc = '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+  function enhanceFile(inp) {
+    if (inp.dataset.cx || inp.closest('.file-field')) return;
+    const cs = getComputedStyle(inp);
+    if (inp.hidden || cs.display === 'none' || cs.visibility === 'hidden' || inp.style.position === 'absolute') return;
+    inp.dataset.cx = '1';
+    const img = /image/.test(inp.accept || '') || /photo|camera|pic/i.test((inp.id || '') + (inp.name || '') + (inp.dataset.file || ''));
+    const title = img ? (inp.multiple ? 'Add photos' : 'Add a photo') : (inp.multiple ? 'Choose files' : 'Choose a file');
+    const sub = img ? 'Take one or pick from your photos' : 'Tap to choose, or drop it here';
+    const wrap = document.createElement('label'); wrap.className = 'file-field';
+    inp.parentNode.insertBefore(wrap, inp);
+    wrap.innerHTML = `<span class="ff-ic">${img ? camIc : upIc}</span><span class="ff-tx"><b>${title}</b><small>${sub}</small></span>`;
+    wrap.appendChild(inp);
+    const show = () => { const f = [...(inp.files || [])]; wrap.classList.toggle('has', !!f.length); wrap.querySelector('b').textContent = f.length ? (f.length === 1 ? f[0].name : f.length + ' files') : title; wrap.querySelector('small').textContent = f.length ? (f.length === 1 ? Math.max(1, Math.round(f[0].size / 1024)) + ' KB · tap to change' : 'Tap to change') : sub };
+    inp.addEventListener('change', show);
+    ['dragenter', 'dragover'].forEach(ev => wrap.addEventListener(ev, () => wrap.classList.add('drag')));
+    ['dragleave', 'drop'].forEach(ev => wrap.addEventListener(ev, () => wrap.classList.remove('drag')));
+  }
+
   function scan(root) {
     if (!root || !root.querySelectorAll) return;
     root.querySelectorAll('select').forEach(enhanceSelect);
     root.querySelectorAll('table').forEach(enhanceTable);
+    root.querySelectorAll('input[type=file]').forEach(enhanceFile);
   }
   const mo = new MutationObserver(muts => {
-    for (const m of muts) m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.tagName === 'SELECT') enhanceSelect(n); else if (n.tagName === 'TABLE') enhanceTable(n); else scan(n) } });
+    for (const m of muts) m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.tagName === 'SELECT') enhanceSelect(n); else if (n.tagName === 'TABLE') enhanceTable(n); else if (n.tagName === 'INPUT' && n.type === 'file') enhanceFile(n); else scan(n) } });
   });
   function start() { scan(document.body); mo.observe(document.body, { childList: true, subtree: true }) }
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);

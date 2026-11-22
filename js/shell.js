@@ -155,7 +155,7 @@
   }
 
   /* ---------------- sliding pill under every segmented control and tab strip ---------------- */
-  const SEGS = '.v-seg, .theme-seg, .v-tabs, .ev-chips, .v-filters, .v93-tiles';
+  const SEGS = '.v-seg, .theme-seg';
   const prevPos = {};
   function thumbs(animate) {
     document.querySelectorAll(SEGS).forEach((c, i) => {
