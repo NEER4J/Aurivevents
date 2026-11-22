@@ -11,13 +11,15 @@
   'use strict';
   const CFG = window.AURIV_CONFIG || {};
   const PFX = 'aurivevents';
-  const WS_LIST = 'aurivevents.v510.workspaces';
+  const WS_LIST = 'aurivevents.v95.workspaces';
   const M = { uid: 'auriv.cloud.uid', at: 'auriv.cloud.at', shared: 'auriv.cloud.shared', rev: l => 'auriv.cloud.rev.' + l, dirty: l => 'auriv.cloud.dirty.' + l, fileq: 'auriv.cloud.fileq' };
   const LOCAL_ONLY = 'auriv.localOnly';
   const APP_SCRIPTS = ['core', 'x00_framework', 'x01_access', 'x02_data', 'x03_fixes', 'x04_scope', 'x05_vendors',
     'x06_sales', 'x07_finance', 'x08_crew', 'x09_eventday', 'x10_usability', 'x11_reporting', 'x12_guests',
     'x13_production', 'x14_about', 'x15_v56', 'x16_about56', 'x17_v57', 'x18_v58', 'x19_v59', 'x20_v510',
-    'simple', 'help', 'search', 'ui', 'visual', 'x99_boot'];
+    'x21_v60', 'x22_v61', 'x23_v7a_shell', 'x23_v7b_home', 'x23_v7c_pages', 'x23_v7d_links',
+    'x24_v8a_shell', 'x24_v8b_lists', 'x24_v8c_new', 'x25_v9', 'x26_v91', 'x27_v93', 'x28_v94', 'x29_v95',
+    'help', 'account', 'screens', 'shell', 'controls', 'search', 'x99_boot'];
 
   const initialHash = location.hash || '';
   const recovering = /type=recovery/.test(initialHash);
@@ -39,13 +41,13 @@
 
   /* ---------------- helpers ---------------- */
   const $app = () => document.getElementById('app');
-  const device = () => document.getElementById('device');
+  const device = () => document.documentElement;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const rawSet = Storage.prototype.setItem, rawRemove = Storage.prototype.removeItem;
   const lsGet = k => localStorage.getItem(k), lsSet = (k, v) => rawSet.call(localStorage, k, v), lsDel = k => rawRemove.call(localStorage, k);
   const curWS = () => { try { return WS } catch (e) { return null } };
   const skip = k => /\.prev$/.test(k) || k === 'aurivevents.probe';
-  const lidOf = k => { const m = k.match(/^aurivevents\.(?:v510|pack)\.([^.]+)/); return m ? m[1] : null };
+  const lidOf = k => { const m = k.match(/^aurivevents\.(?:v95|v510|pack|pref)\.([^.]+)/); return m ? m[1] : null };
   const bucketOf = k => { const l = lidOf(k); return l && byLid[l] ? l : 'me' };
   function appKeys() { const k = []; for (let i = 0; i < localStorage.length; i++) { const n = localStorage.key(i); if (n && n.startsWith(PFX)) k.push(n) } return k }
   const keysOfLid = lid => appKeys().filter(k => lidOf(k) === lid);
@@ -65,8 +67,18 @@
 
   /* ---------------- boot the app scripts in order ---------------- */
   let appLoaded = false;
+  /* v5.10 → v9.5: data saved by the old app (on this device or pulled from the cloud) moves to the v9.5 keys
+     once; the app's own migration chain (510 → 60 → … → 95) then upgrades the records when it loads them. */
+  function moveOldKeys() {
+    appKeys().filter(k => k.startsWith('aurivevents.v510.')).forEach(k => {
+      const nk = 'aurivevents.v95.' + k.slice('aurivevents.v510.'.length);
+      if (lsGet(nk) == null) lsSet(nk, lsGet(k));
+      lsDel(k);
+    });
+  }
   function loadApp() {
     if (appLoaded) return; appLoaded = true;
+    try { moveOldKeys() } catch (e) { console.error('move keys', e) }
     document.documentElement.classList.remove('auth-mode');
     APP_SCRIPTS.forEach(n => { const s = document.createElement('script'); s.src = 'js/' + n + '.js'; s.async = false; document.body.appendChild(s) });
     const t = setInterval(() => { if (window.__ready) { clearInterval(t); afterReady() } }, 60);
@@ -140,6 +152,7 @@
       const pending = lsGet(M.dirty(w.local_id));
       if (!(pending && base === w.rev)) { keysOfLid(w.local_id).forEach(lsDel); writeData(w.data); lsSet(M.rev(w.local_id), String(w.rev)); lsDel(M.dirty(w.local_id)) }
     });
+    moveOldKeys();
     // Workspaces this user lost access to
     let before = []; try { before = JSON.parse(lsGet(M.shared) || '[]') } catch (e) {}
     const gone = before.filter(l => !byLid[l]);
@@ -156,7 +169,7 @@
   async function applyRemote(w, why) {
     const { data, error } = await sb.from('shared_workspaces').select('rev,data,name').eq('id', w.id).maybeSingle();
     if (error || !data) return;
-    keysOfLid(w.local_id).forEach(lsDel); writeData(data.data);
+    keysOfLid(w.local_id).forEach(lsDel); writeData(data.data); moveOldKeys();
     w.rev = data.rev; lsSet(M.rev(w.local_id), String(data.rev)); lsDel(M.dirty(w.local_id)); dirty.delete(w.local_id);
     if (curWS() === w.local_id) { try { reloadFromStorage(); render() } catch (e) { console.error(e) } if (why) toastSafe(why) }
   }

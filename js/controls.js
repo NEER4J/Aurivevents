@@ -1,10 +1,10 @@
-/* ===== controls.js — custom dropdowns and phone-friendly tables =====
+/* ===== controls.js — custom dropdowns and phone-friendly tables (from v5.10, works at every width) =====
    Works on any markup the app renders (pages, sheets, menu) via a MutationObserver.
    - <select>: the native element stays in the DOM (the app reads .value and listens
      for change events), hidden behind a styled button that opens a picker sheet.
    - <table> with 3+ columns: rows are re-laid out as stacked label/value lists. */
 (function () {
-  const dev = () => document.getElementById('device');
+  const dev = () => document.body;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const chev = '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
   const tick = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
@@ -15,7 +15,7 @@
   HTMLElement.prototype.focus = function (o) { return _focus.call(this, Object.assign({ preventScroll: true }, o || {})) };
   ['scroll'].forEach(ev => document.addEventListener(ev, e => {
     const t = e.target;
-    if (t === document || t === document.documentElement || t === document.body || (t.classList && (t.classList.contains('device') || t.classList.contains('phone') || t.classList.contains('stage') || t.id === 'modal' || t.classList.contains('modal-bg')))) {
+    if (t && t.classList && (t.id === 'modal' || t.classList.contains('modal-bg'))) {
       const el = t === document ? document.scrollingElement : t;
       if (el && (el.scrollTop || el.scrollLeft)) { el.scrollTop = 0; el.scrollLeft = 0 }
     }
@@ -24,7 +24,7 @@
   /* ---------------- dropdowns ---------------- */
   function label(sel) { const o = sel.options[sel.selectedIndex]; return o ? o.textContent.trim() : '' }
   function enhanceSelect(sel) {
-    if (sel.dataset.cx || sel.multiple || sel.closest('.picker')) return;
+    if (sel.dataset.cx || sel.multiple || sel.closest('.picker') || sel.closest('.auth')) return;
     sel.dataset.cx = '1';
     const wrap = document.createElement('span');
     wrap.className = 'sel';
@@ -74,7 +74,7 @@
       ${many ? '<input class="pk-search" type="search" placeholder="Search" autocomplete="off">' : ''}
       <div class="pk-list">${items.map((it, i) => it.group != null ? `<div class="pk-group">${esc(it.group)}</div>` :
         `<button type="button" class="pk-opt${it.o.selected ? ' on' : ''}" role="option" aria-selected="${it.o.selected}" data-i="${it.o.index}" ${it.o.disabled ? 'disabled' : ''} style="--k:${Math.min(i, 12)}"><span>${esc(it.o.textContent.trim())}</span>${tick}</button>`).join('')}</div></div>`;
-    dev().appendChild(p);
+    dev().appendChild(p); document.body.classList.add('picker-open');
     open = p;
     requestAnimationFrame(() => p.classList.add('in'));
     const on = p.querySelector('.pk-opt.on'), list = p.querySelector('.pk-list'); if (on && list) list.scrollTop = Math.max(0, on.offsetTop - list.clientHeight / 2 + on.offsetHeight / 2);
@@ -94,7 +94,7 @@
     if (s) { s.addEventListener('input', () => { const q = s.value.toLowerCase(); p.querySelectorAll('.pk-opt').forEach(b => { b.hidden = q && !b.textContent.toLowerCase().includes(q) }) }); setTimeout(() => s.focus(), 250) }
   }
   function closePicker(now) {
-    if (!open) return; const p = open; open = null;
+    if (!open) return; const p = open; open = null; document.body.classList.remove('picker-open');
     if (now) { p.remove(); return }
     p.classList.remove('in'); p.classList.add('out'); setTimeout(() => p.remove(), 300);
   }
@@ -107,6 +107,7 @@
     const cols = head ? head.cells.length : (t.rows[0] ? t.rows[0].cells.length : 0);
     if (cols < 3) { t.classList.add('tbl-2'); return }
     const names = head ? [...head.cells].map(c => c.textContent.trim()) : [];
+    if (window.innerWidth >= 760) { t.classList.add('wide-table'); const sc0 = t.closest('.scroll'); if (sc0) sc0.classList.add('scroll-wide'); return }
     t.classList.add('stacked');
     [...t.querySelectorAll('tbody tr, tfoot tr')].forEach(tr => {
       [...tr.cells].forEach((td, i) => { if (!td.hasAttribute('data-label')) td.setAttribute('data-label', names[i] || '') ; if (!td.textContent.trim() && !td.querySelector('button,input,select,a')) td.classList.add('blank') });
@@ -114,15 +115,37 @@
     const sc = t.closest('.scroll'); if (sc) sc.classList.add('scroll-stacked');
   }
 
+  /* ---------------- upload fields: a drop zone with the file name ---------------- */
+  const upIc = '<svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>';
+  const camIc = '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+  function enhanceFile(inp) {
+    if (inp.dataset.cx || inp.closest('.file-field')) return;
+    const cs = getComputedStyle(inp);
+    if (inp.hidden || cs.display === 'none' || cs.visibility === 'hidden' || inp.style.position === 'absolute') return;
+    inp.dataset.cx = '1';
+    const img = /image/.test(inp.accept || '') || /photo|camera|pic/i.test((inp.id || '') + (inp.name || '') + (inp.dataset.file || ''));
+    const title = img ? (inp.multiple ? 'Add photos' : 'Add a photo') : (inp.multiple ? 'Choose files' : 'Choose a file');
+    const sub = img ? 'Take one or pick from your photos' : 'Tap to choose, or drop it here';
+    const wrap = document.createElement('label'); wrap.className = 'file-field';
+    inp.parentNode.insertBefore(wrap, inp);
+    wrap.innerHTML = `<span class="ff-ic">${img ? camIc : upIc}</span><span class="ff-tx"><b>${title}</b><small>${sub}</small></span>`;
+    wrap.appendChild(inp);
+    const show = () => { const f = [...(inp.files || [])]; wrap.classList.toggle('has', !!f.length); wrap.querySelector('b').textContent = f.length ? (f.length === 1 ? f[0].name : f.length + ' files') : title; wrap.querySelector('small').textContent = f.length ? (f.length === 1 ? Math.max(1, Math.round(f[0].size / 1024)) + ' KB · tap to change' : 'Tap to change') : sub };
+    inp.addEventListener('change', show);
+    ['dragenter', 'dragover'].forEach(ev => wrap.addEventListener(ev, () => wrap.classList.add('drag')));
+    ['dragleave', 'drop'].forEach(ev => wrap.addEventListener(ev, () => wrap.classList.remove('drag')));
+  }
+
   function scan(root) {
     if (!root || !root.querySelectorAll) return;
     root.querySelectorAll('select').forEach(enhanceSelect);
     root.querySelectorAll('table').forEach(enhanceTable);
+    root.querySelectorAll('input[type=file]').forEach(enhanceFile);
   }
   const mo = new MutationObserver(muts => {
-    for (const m of muts) m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.tagName === 'SELECT') enhanceSelect(n); else if (n.tagName === 'TABLE') enhanceTable(n); else scan(n) } });
+    for (const m of muts) m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.tagName === 'SELECT') enhanceSelect(n); else if (n.tagName === 'TABLE') enhanceTable(n); else if (n.tagName === 'INPUT' && n.type === 'file') enhanceFile(n); else scan(n) } });
   });
-  function start() { scan(document.getElementById('device')); mo.observe(document.getElementById('device'), { childList: true, subtree: true }) }
-  if (document.getElementById('device')) start(); else document.addEventListener('DOMContentLoaded', start);
+  function start() { scan(document.body); mo.observe(document.body, { childList: true, subtree: true }) }
+  if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
   window.AURIV_CONTROLS = { scan, closePicker };
 })();

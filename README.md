@@ -6,15 +6,20 @@ The web app renders as a phone layout everywhere (framed on desktop) so it match
 **Live:** https://aurivevents.vercel.app/
 
 ## How the app is organised
-- **Dock:** Home (today: first thing, money tiles, needs attention, coming up, cash weeks) · Events · Vendors ·
-  Company (owner) / Reimbursements (staff) · **More**.
-- **More** lists every other v5.10 tool, grouped: Work · Clients & sales · People & vendors · Money · Reports ·
-  Setup & admin. Each tool screen has a "‹ More" back button. Search finds tools too.
-- **Event page:** six numbers + Client / Vendors / Expenses / Changes, and **⋯** for Quote, Budget, Scope, Tasks,
-  Crew, Run sheet, Client approvals, Other income, Documents, Activity, Access, Guests, Production, Travel…
-- **Forms:** everyday fields first; the rest under **More options** (a TDS rate that will be deducted always stays visible).
-- **Settings:** company, team, categories, export, and **All settings** for the full v5.10 settings.
-Roles: Owner and Staff first; Event planner, Manager and Accountant are also available. See `js/simple.js`.
+The v5.10 look (black and white, Google Sans Flex, rounded cards, photo ticket cards, smooth motion) over the v9.5
+features, at every width:
+- **Phone and tablet:** app bar (search, alerts, avatar) and a floating dock with a sliding indicator —
+  Home · Events · Vendors · Company (owner) or Tasks · More. Sheets open from below on a phone, as a drawer on a tablet.
+- **Desktop (1100 px and up):** a quiet side menu (Home, Events, Tasks, Calendar, Vendors, Company, Needs attention,
+  More, Setup) with your avatar at the bottom; details open in a drawer from the right.
+- **Screens:** Home greets you with the next event as a photo card and what is coming up; Events are photo ticket
+  cards with status chips; an event opens on a photo hero with the six money numbers and pill tabs; Vendors are
+  directory cards with your cost history; More lists every other screen, grouped, with search.
+- **Theme:** System, Light or Dark — from the avatar sheet, More › App or Account. Kept on the device.
+- **Motion:** screens fade and their sections rise; segmented controls and tab strips slide; sheets and the drawer
+  slide away when closed; custom dropdowns open as a picker sheet.
+
+Roles: Owner, Event planner, Manager, Coordinator, Staff and Accountant, each seeing only what they need.
 
 ## Install as an app (PWA)
 Open the site on a phone → menu → **Install the app** (Android/Chrome) or **Add to Home Screen** (iPhone, Safari).
@@ -23,16 +28,18 @@ the connection returns. When adding new files to the app, add them to the `SHELL
 
 ## Structure
 ```
-index.html            App shell (device frame, app bar, drawer, tab bar)
-css/app.css           Design system
+index.html            App shell: app bar, dock, theme before first paint
+css/app.css           v9.5 base → v3 design system (from v5.10) → sign-in → frame and screens (in that order)
 js/config.js          Supabase URL + publishable key + demo credentials
-js/cloud.js           Supabase auth gate + cloud sync (loads the app scripts)
-js/ui.js              Mobile shell behaviour (drawer, icon tab bar, app bar, install)
-js/simple.js          Basic app from the build guide (default) + advanced-tools switch
-js/visual.js          Photos, hero headers, ticket cards, layout tidying
-js/controls.js        Custom dropdowns, phone-friendly tables
+js/cloud.js           Supabase auth gate + cloud sync (loads the app scripts, moves v5.10 data to v9.5 keys)
+js/core.js, js/x*.js  App modules, v5.1 → v9.5: rules, records, actions (load order is in js/cloud.js)
+js/help.js            Help & tutorials page
+js/account.js         Account page: sync, company, team access, theme, install, sign out
+js/screens.js         Main screens in the v5.10 look; sections as cards; drawer; calendar items; sign-in card
+js/shell.js           App bar, dock, side menu, account sheet, theme, sliding pills, page motion
+js/controls.js        Custom dropdowns (picker sheet) and phone-friendly tables
+js/search.js          Search everything (/ or ⌘K)
 sw.js                 Service worker (offline app shell)
-js/core.js, js/x*.js  App modules (load order is defined in js/cloud.js)
 supabase/             Supabase CLI project (migrations)
 ```
 

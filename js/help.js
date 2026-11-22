@@ -69,56 +69,33 @@
     ['Change', 'Something the client adds or removes after the deal: “add 50 guests”.']
   ].filter(w => !w[2] || isOwner());
 
-  function installBlock() {
-    if (document.documentElement.classList.contains('standalone')) return '<div class="help-ok">You’re using the installed app.</div>';
-    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    if (window.__installPrompt) return '<button class="btn pri" data-ui-act="install">Install the app</button>';
-    if (ios) return '<button class="btn pri" data-ui-act="install-ios">How to add it on iPhone</button>';
-    return '<div class="small muted">On Android, open this page in Chrome and choose <b>Install app</b> from the ⋮ menu. On iPhone, open it in Safari, tap Share, then <b>Add to Home Screen</b>.</div>';
-  }
+  const faqRows = q => FAQ().filter(f => !q || (f[0] + ' ' + f[1]).toLowerCase().includes(q)).map(f => `<details class="hp-q" ${q ? 'open' : ''}><summary>${f[0]}</summary><div class="hp-a">${f[1]}</div></details>`).join('') || '<div class="v-note">Nothing matches. Try another word.</div>';
 
+  /* one page in the app's own pattern: header, then titled cards */
   function vHelp() {
     const own = isOwner();
     const q = (S.ui.helpq || '').toLowerCase();
-    return `<div class="eyebrow">Help</div>
-    <div class="row between pg-head"><h1>How it works</h1></div>
-    <p class="help-lead">${own ? 'Aurivevents is a notebook that adds up by itself. Write down what the client is paying and what you’ve promised everyone else, and it always shows how much you’ll make.' : 'Record payments and expenses as they happen. The owner sees everything add up straight away.'}</p>
-
-    <div class="sec-label"><span>${own ? 'Getting started' : 'Your everyday jobs'}</span></div>
-    <div class="card help-steps">${steps().map(([i, t, d, go], n) => `<div class="hs"><div class="hs-n">${I[i] || n + 1}</div><div class="hs-b"><div class="hs-t"><span class="hs-k">${n + 1}</span>${t}</div><div class="hs-d">${d}</div><button class="btn sm" data-act="help-go" data-v="${go}">Show me</button></div></div>`).join('')}</div>
-
-    ${own ? `<div class="sec-label"><span>The one rule that matters</span></div>
-    <div class="card help-rule">
-      <p>Profit is always worked out from what you’ve <b>promised</b> vendors — never from what you’ve paid so far.</p>
-      <div class="hr-ex">
-        <div class="hr-row"><span>Family pays you</span><b class="num">₹30,00,000</b></div>
-        <div class="hr-row"><span>You promised the decorator</span><b class="num">₹8,50,000</b></div>
-        <div class="hr-row muted"><span>…and paid so far</span><b class="num">₹3,00,000</b></div>
-        <div class="hr-row"><span>All vendors and spending</span><b class="num">₹27,20,000</b></div>
-        <div class="hr-row tot"><span>What you’ll make</span><b class="num">₹2,80,000</b></div>
-      </div>
-      <p class="small muted">The decorator costs ₹8,50,000, not ₹3,00,000. Adding up payments makes every wedding look profitable until the last bills arrive.</p>
-    </div>
-    <div class="card help-six"><h3>The six numbers on every event</h3><div class="kv">
-      <b>Contract value</b><span>What the client agreed to pay, plus approved changes.</span>
-      <b>Committed</b><span>Everything you’ve agreed with vendors.</span>
-      <b>Paid</b><span>What has actually gone out to vendors.</span>
-      <b>Expenses</b><span>Small spending on this event.</span>
-      <b>Actual profit</b><span>Contract − committed − expenses.</span>
-      <b>Expected profit</b><span>Contract − your estimates. Shows “—” until you enter estimates.</span>
-    </div></div>` : ''}
-
-    <div class="sec-label"><span>Questions</span></div>
-    <input class="help-search" id="help-q" placeholder="Search help" value="${esc(S.ui.helpq || '')}" autocomplete="off">
-    <div class="card help-faq">${FAQ().filter(f => !q || (f[0] + ' ' + f[1]).toLowerCase().includes(q)).map(f => `<details><summary>${f[0]}</summary><div class="hf-a">${f[1]}</div></details>`).join('') || '<div class="muted small">Nothing matches. Try another word.</div>'}</div>
-
-    <div class="sec-label"><span>Words we use</span></div>
-    <div class="card help-words"><div class="kv">${WORDS().map(([w, d]) => `<b>${w}</b><span>${d}</span>`).join('')}</div></div>
-
-    <div class="sec-label"><span>Use it like an app</span></div>
-    <div class="card help-install"><div class="hi-row"><img src="assets/icons/apple-touch-icon.png" alt="" width="48" height="48"><div><div class="hs-t">Add Aurivevents to your home screen</div><div class="hs-d">It opens full screen, starts faster and works with no signal.</div></div></div>${installBlock()}</div>
-
-    <p class="help-foot">${own ? 'Still stuck? Tell us what you were trying to do — every question makes the app better.' : 'Still stuck? Ask the owner of your company.'}</p>`;
+    const ic = k => `<span class="hp-ic">${I[k] || ''}</span>`;
+    const stepsRows = steps().map(([i, t, d, go], n) => vRow({ act: 'help-go', v: go, left: ic(i), ttl: `${n + 1}. ${t}`, sub: d, wrap: true, end: `<span class="hp-go">Show me</span>` })).join('');
+    const kv = rows => `<dl class="v-kv hp-kv">${rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>`;
+    const standalone = document.documentElement.classList.contains('standalone');
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const install = standalone ? vRow({ ttl: 'You’re using the installed app', end: '' })
+      : (window.__installPrompt || ios) ? vRow({ act: 'acc-install', left: ic('export'), ttl: window.__installPrompt ? 'Install the app' : 'Add to Home Screen', sub: 'Opens full screen, starts faster and works with no signal.' })
+      : `<div class="v-note">On Android, open this page in Chrome and choose <b>Install app</b> from the ⋮ menu. On iPhone, open it in Safari, tap Share, then <b>Add to Home Screen</b>.</div>`;
+    const body = `<div class="v-list">
+      <div class="v-note hp-lead">${own ? 'Aurivevents is a notebook that adds up by itself. Write down what the client is paying and what you’ve promised everyone else, and it always shows how much you’ll make.' : 'Record payments and expenses as they happen. The owner sees everything add up straight away.'}</div>
+      ${vSec(own ? 'Getting started' : 'Your everyday jobs')}${stepsRows}
+      ${own ? `${vSec('The one rule that matters')}<div class="v-pad"><p style="margin:0">Profit is always worked out from what you’ve <b>promised</b> vendors — never from what you’ve paid so far.</p></div>
+        ${kv([['Family pays you', '₹30,00,000'], ['You promised the decorator', '₹8,50,000'], ['…and paid so far', '₹3,00,000'], ['All vendors and spending', '₹27,20,000'], ['<b>What you’ll make</b>', '<b>₹2,80,000</b>']])}
+        <div class="v-note">The decorator costs ₹8,50,000, not ₹3,00,000. Adding up payments makes every event look profitable until the last bills arrive.</div>
+        ${vSec('The six numbers on every event')}${kv([['Contract value', 'What the client agreed to pay, plus approved changes.'], ['Committed', 'Everything you’ve agreed with vendors.'], ['Paid', 'What has actually gone out to vendors.'], ['Expenses', 'Small spending on this event.'], ['Actual profit', 'Contract − committed − expenses.'], ['Expected profit', 'Contract − your estimates.']])}` : ''}
+      ${vSec('Questions')}<div class="v-pad"><input id="help-q" placeholder="Search help" value="${esc(S.ui.helpq || '')}" autocomplete="off"></div><div class="hp-faq">${faqRows(q)}</div>
+      ${vSec('Words we use')}${kv(WORDS().map(([w, d]) => [w, d]))}
+      ${vSec('Use it like an app')}${install}
+      <div class="v-note hp-foot">${own ? 'Still stuck? Tell us what you were trying to do — every question makes the app better.' : 'Still stuck? Ask the owner of your company.'}</div>
+    </div>`;
+    return vFrame({ key: 'help', title: 'Help', sub: 'How Aurivevents works', back: '#home', body });
   }
 
   /* jump straight to the screen (and open the form) a step talks about */
@@ -128,16 +105,12 @@
     const list = S.events.filter(e => !e.history && eventVisible(e) && !['lost', 'cancelled', 'closed'].includes(e.stage));
     const e = (S.ui.eventId && list.find(x => x.id === S.ui.eventId)) || list.sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
     if (!e) { toast('Add an event first'); location.hash = 'home'; return setTimeout(() => mQuickEnquiry(), 250) }
-    S.ui.tab = v; S.ui.eventId = e.id; save(); go('event', e.id);
-    const btn = { client: 'add-ms', vendors: 'add-vendor', expenses: 'add-exp', changes: 's-change' }[v];
-    if (btn && v !== 'vendors') setTimeout(() => { const b = document.querySelector(`.s-tab [data-act="${btn}"]`); if (b) b.click() }, 650);
+    S.ui.tab = { expenses: 'money' }[v] || v; S.ui.eventId = e.id; save(); go('event', e.id);
   });
   document.addEventListener('input', e => {
     if (e.target.id !== 'help-q') return;
     S.ui.helpq = e.target.value; const q = S.ui.helpq.toLowerCase();
-    const box = document.querySelector('.help-faq'); if (!box) return;
-    const list = FAQ().filter(f => !q || (f[0] + ' ' + f[1]).toLowerCase().includes(q));
-    box.innerHTML = list.map(f => `<details ${q ? 'open' : ''}><summary>${f[0]}</summary><div class="hf-a">${f[1]}</div></details>`).join('') || '<div class="muted small">Nothing matches. Try another word.</div>';
+    const box = document.querySelector('.hp-faq'); if (box) box.innerHTML = faqRows(q);
   });
 
   window.PAGES_EXT = window.PAGES_EXT || {};

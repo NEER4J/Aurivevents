@@ -4,7 +4,7 @@
    never see client money, changes or profit. Tapping a result opens the exact
    event tab or vendor card. Recent searches are kept on this device. */
 (function () {
-  const dev = () => document.getElementById('device');
+  const dev = () => document.body;
   const norm = s => String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const digits = s => String(s).replace(/[^\d]/g, '');
   const cap = m => ({ upi: 'UPI', bank: 'Bank', cash: 'Cash', cheque: 'Cheque', card: 'Card' })[m] || (m[0].toUpperCase() + m.slice(1));
@@ -159,9 +159,9 @@
   function goTo(g) {
     if (g.action === 'new-event') { location.hash = 'home'; return setTimeout(() => mQuickEnquiry(), 200) }
     if (g.route) { location.hash = g.route; return }
-    if (g.help) { S.ui.helpq = g.help; save(); if (location.hash === '#help') render(); else location.hash = 'help'; return setTimeout(() => { const d = document.querySelector('.help-faq details'); if (d) d.open = true }, 350) }
+    if (g.help) { S.ui.helpq = g.help; save(); if (location.hash === '#help') render(); else location.hash = 'help'; return setTimeout(() => { const d = document.querySelector('.hp-q'); if (d) d.open = true }, 350) }
     if (g.vendor) {
-      const show = () => { const b = document.querySelector(`#app [data-act="edit-dir-vendor"][data-id="${CSS.escape(g.vendor)}"]`); const card = b && b.closest('.card'); const sc = document.getElementById('scroller'); if (card && sc) { sc.scrollTop += card.getBoundingClientRect().top - sc.getBoundingClientRect().top - 12; card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash') } };
+      const show = () => { const b = document.querySelector(`#app [data-act="edit-dir-vendor"][data-id="${CSS.escape(g.vendor)}"]`); const card = b && b.closest('.card'); if (card) { card.scrollIntoView({ block: 'center', behavior: 'smooth' }); card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash') } };
       if (location.hash === '#vendors') { S.ui.vq = ''; render(); setTimeout(show, 100) } else { S.ui.vq = ''; location.hash = 'vendors'; setTimeout(show, 450) }
       return;
     }
