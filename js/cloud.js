@@ -19,7 +19,7 @@
     'x13_production', 'x14_about', 'x15_v56', 'x16_about56', 'x17_v57', 'x18_v58', 'x19_v59', 'x20_v510',
     'x21_v60', 'x22_v61', 'x23_v7a_shell', 'x23_v7b_home', 'x23_v7c_pages', 'x23_v7d_links',
     'x24_v8a_shell', 'x24_v8b_lists', 'x24_v8c_new', 'x25_v9', 'x26_v91', 'x27_v93', 'x28_v94', 'x29_v95',
-    'help', 'account', 'nav', 'layout', 'x99_boot'];
+    'help', 'account', 'screens', 'shell', 'controls', 'search', 'x99_boot'];
 
   const initialHash = location.hash || '';
   const recovering = /type=recovery/.test(initialHash);

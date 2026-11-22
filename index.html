@@ -33,15 +33,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500&family=Noto+Sans+Malayalam:wght@400;500&display=swap">
 <link rel="stylesheet" href="css/app.css">
+<script>/* theme before first paint: system · light · dark, kept on this device */
+(function(){try{var t=localStorage.getItem('auriv.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
 </head>
-<body>
-<!-- One layout at three widths (v9.5): phone = one list + sheets + bottom bar; desk (760+) = list + detail panel;
-     wide (1100+) = navigation rail + list + panel. The rail and panel are added by js/x24_v8a_shell.js. -->
+<body class="no-shell">
+<!-- One app at every width. Phone and tablet: app bar, page, floating dock. Desktop (1100+): side menu instead of the dock.
+     Detail sheets open from below on a phone and as a drawer from the right on wider screens. -->
 <div class="shell">
   <aside class="side"><div class="brand">Aurivevents<small>KNOW YOUR MARGIN</small></div><nav class="nav" id="nav"></nav><div class="foot" id="sidefoot"></div></aside>
-  <main class="main"><div class="wrap" id="app"><div class="boot"><div class="boot-word">Aurivevents</div></div></div></main>
+  <main class="main">
+    <header class="appbar" id="appbar">
+      <a class="ab-word" href="#home">Aurivevents</a>
+      <span class="ab-space"></span>
+      <a class="ab-btn" href="#inbox" id="ab-inbox" aria-label="Inbox"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i class="ab-dot" hidden></i></a>
+      <button class="ab-avatar" type="button" id="ab-avatar" aria-label="Account and menu"></button>
+    </header>
+    <div class="wrap" id="app"><div class="boot"><div class="boot-word">Aurivevents</div></div></div>
+  </main>
 </div>
-<nav class="tabbar" id="tabbar"></nav>
+<nav class="dock" id="dock" aria-label="Main"><span class="dock-ind" id="dock-ind"></span><div class="dock-tabs" id="dockbar"></div></nav>
+<nav id="tabbar" hidden></nav>
 <div id="modal"></div>
 <div id="toast" hidden></div>
 

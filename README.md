@@ -6,19 +6,20 @@ The web app renders as a phone layout everywhere (framed on desktop) so it match
 **Live:** https://aurivevents.vercel.app/
 
 ## How the app is organised
-One layout at three widths, black and white, with red only for anything late:
-- **Phone (under 760 px):** page title on top, sections as grouped cards, the main action above a bottom tab bar
-  (Home · Events · Tasks · Attention · More). Details open as sheets from below.
-- **Tablet (760–1099 px):** the same pages, wider; the main action sits in the page header; details open in a drawer
-  from the right.
-- **Desktop (1100 px and up):** a side menu with icons, pages up to 1120 px wide, Home as a two-column dashboard,
-  details in a drawer from the right (Esc or a click outside closes it).
+The v5.10 look (black and white, Google Sans Flex, rounded cards, photo ticket cards, smooth motion) over the v9.5
+features, at every width:
+- **Phone and tablet:** app bar (search, alerts, avatar) and a floating dock with a sliding indicator —
+  Home · Events · Vendors · Company (owner) or Tasks · More. Sheets open from below on a phone, as a drawer on a tablet.
+- **Desktop (1100 px and up):** a quiet side menu (Home, Events, Tasks, Calendar, Vendors, Company, Needs attention,
+  More, Setup) with your avatar at the bottom; details open in a drawer from the right.
+- **Screens:** Home greets you with the next event as a photo card and what is coming up; Events are photo ticket
+  cards with status chips; an event opens on a photo hero with the six money numbers and pill tabs; Vendors are
+  directory cards with your cost history; More lists every other screen, grouped, with search.
+- **Theme:** System, Light or Dark — from the avatar sheet, More › App or Account. Kept on the device.
+- **Motion:** screens fade and their sections rise; segmented controls and tab strips slide; sheets and the drawer
+  slide away when closed; custom dropdowns open as a picker sheet.
 
-Features are those of the v9.5 build: status-first Home, tasks, calendar and week board, the change loop with vendors
-and clients, crew duties, the owner cockpit, inventory and print jobs, event templates, client statements, margin
-rollups, money checks, and the full v5.10 toolset (quotes, vendor orders, payments, guests, production, reports).
 Roles: Owner, Event planner, Manager, Coordinator, Staff and Accountant, each seeing only what they need.
-The **Account** page holds cloud sync, the company switcher, team access, install and sign out.
 
 ## Install as an app (PWA)
 Open the site on a phone → menu → **Install the app** (Android/Chrome) or **Add to Home Screen** (iPhone, Safari).
@@ -27,15 +28,17 @@ the connection returns. When adding new files to the app, add them to the `SHELL
 
 ## Structure
 ```
-index.html            App shell (rail and detail drawer are added at boot)
-css/app.css           Design system: v9.5 base, then the black-and-white theme and the layout (at the end)
+index.html            App shell: app bar, dock, theme before first paint
+css/app.css           v9.5 base → v3 design system (from v5.10) → sign-in → frame and screens (in that order)
 js/config.js          Supabase URL + publishable key + demo credentials
 js/cloud.js           Supabase auth gate + cloud sync (loads the app scripts, moves v5.10 data to v9.5 keys)
-js/core.js, js/x*.js  App modules, v5.1 → v9.5 (load order is defined in js/cloud.js)
+js/core.js, js/x*.js  App modules, v5.1 → v9.5: rules, records, actions (load order is in js/cloud.js)
 js/help.js            Help & tutorials page
-js/account.js         Account page: sync, company, team access, install, sign out
-js/nav.js             Bottom tab bar (phone and tablet) and menu icons
-js/layout.js          Production layout: sections as cards, header actions, detail drawer, dashboard Home
+js/account.js         Account page: sync, company, team access, theme, install, sign out
+js/screens.js         Main screens in the v5.10 look; sections as cards; drawer; calendar items; sign-in card
+js/shell.js           App bar, dock, side menu, account sheet, theme, sliding pills, page motion
+js/controls.js        Custom dropdowns (picker sheet) and phone-friendly tables
+js/search.js          Search everything (/ or ⌘K)
 sw.js                 Service worker (offline app shell)
 supabase/             Supabase CLI project (migrations)
 ```

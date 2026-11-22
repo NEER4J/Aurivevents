@@ -28,6 +28,8 @@
       rows.push(vSec(T('Account')));
       rows.push(vEmpty(T('This device only: nothing is sent to the cloud. Sign in with an account to sync between devices and share with your team.'), c.enabled ? `<button class="btn pri" data-act="acc-signin">${T('Sign in with an account')}</button>` : ''));
     }
+    rows.push(vSec(T('Theme')));
+    rows.push(`<div class="v-pad">${window.AURIV_THEME ? AURIV_THEME.seg() : ''}</div>`);
     if (!standalone() && (window.__installPrompt || isIOS())) {
       rows.push(vSec(T('App')));
       rows.push(vRow({ act: 'acc-install', ttl: window.__installPrompt ? T('Install the app') : T('Add to Home Screen'), sub: T('Opens full screen, works with no signal') }));
@@ -40,17 +42,6 @@
   }
   addPage('account', 'Account', vAccount);
 
-  /* menu sheet and rail: "Account" sits with the person, at the bottom */
-  const _rows = navSheetRows;
-  navSheetRows = function () { const g = _rows(); g.push(['You', [['account', signedIn() ? 'Account & sync' : 'Account'], ['help', 'Help']]]); return g };
-
-  /* keep the sync word live without re-rendering the page */
-  const _render = render;
-  render = function () { const r = _render.apply(this, arguments); try { decorateRail() } catch (e) { console.error('account', e) } return r };
-  function decorateRail() {
-    const foot = document.querySelector('#rail .foot'); if (!foot || foot.querySelector('.acc-sync') || !signedIn()) return;
-    foot.insertAdjacentHTML('afterbegin', `<a href="#account" class="acc-sync"><span class="v-st ${syncKind(C().state)} plain" data-cloud-word>${T(syncWord(C().state))}</span></a>`);
-  }
   new MutationObserver(() => {
     const s = document.documentElement.dataset.cloud || '';
     document.querySelectorAll('#cloud-state,[data-cloud-word]').forEach(el => { el.textContent = T(syncWord(s)); el.className = el.className.replace(/\b(ok|wait|late)\b/g, '').trim() + ' ' + syncKind(s) });
