@@ -2269,7 +2269,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--brand)!important}
 /* sliding pills: green; labels switch colour as the pill arrives */
 .seg-thumb,.v-seg.has-thumb > .seg-thumb,.theme-seg.has-thumb > .seg-thumb{background:var(--brand)!important}
 .v-seg.has-thumb > button,.theme-seg.has-thumb > button{mix-blend-mode:normal!important;color:var(--muted)!important;transition:color .18s ease!important}
-.v-seg.has-thumb > button:hover,.theme-seg.has-thumb > button:hover{color:var(--ink)!important}
 .v-seg.has-thumb > :is([aria-pressed="true"],[aria-selected="true"],.on),.theme-seg.has-thumb > [aria-pressed="true"]{color:var(--brand-ink)!important}
 .has-thumb > .tw{color:var(--muted)!important;transition:none!important}
 .has-thumb > .tw-on{color:var(--brand-ink)!important;transition:none!important}
@@ -2327,3 +2326,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
 .file-field.has .ff-ic{background:var(--brand);color:var(--brand-ink)}
 .file-field:hover,.file-field.drag{border-color:var(--brand)}
 .boot-word{color:var(--brand)}
+/* hover darkens only the labels that are not chosen */
+.v-seg.has-thumb > button:hover:not([aria-pressed="true"]):not([aria-selected="true"]):not(.on),.theme-seg.has-thumb > button:hover:not([aria-pressed="true"]){color:var(--ink)!important}
+.v-seg.has-thumb > button:is([aria-pressed="true"],[aria-selected="true"],.on):hover,.theme-seg.has-thumb > button[aria-pressed="true"]:hover{color:var(--brand-ink)!important}
+.v-tab[aria-selected="true"]:hover,.btn.chip.on:hover,.v-filters .fchip.on:hover{background:var(--brand-2)!important;color:var(--brand-ink)!important}
