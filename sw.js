@@ -3,7 +3,7 @@
    - Same-origin files: network first (fresh after every deploy), cached copy when offline or slow.
    - Fonts and CDN libraries: cached after first use.
    - Supabase (data + auth) is never cached here; the app keeps its own offline copy and syncs. */
-const VERSION = 'auriv-2026-11-02-5';
+const VERSION = 'auriv-2026-11-23-v95-bw-1';
 const SHELL = [
 "./",
 "index.html",
@@ -15,15 +15,12 @@ const SHELL = [
 "assets/icons/icon-192.png",
 "assets/icons/icon-512.png",
 "assets/icons/maskable-512.png",
+"js/account.js",
 "js/cloud.js",
 "js/config.js",
-"js/controls.js",
 "js/core.js",
 "js/help.js",
-"js/search.js",
-"js/simple.js",
-"js/ui.js",
-"js/visual.js",
+"js/nav.js",
 "js/x00_framework.js",
 "js/x01_access.js",
 "js/x02_data.js",
@@ -45,6 +42,20 @@ const SHELL = [
 "js/x18_v58.js",
 "js/x19_v59.js",
 "js/x20_v510.js",
+"js/x21_v60.js",
+"js/x22_v61.js",
+"js/x23_v7a_shell.js",
+"js/x23_v7b_home.js",
+"js/x23_v7c_pages.js",
+"js/x23_v7d_links.js",
+"js/x24_v8a_shell.js",
+"js/x24_v8b_lists.js",
+"js/x24_v8c_new.js",
+"js/x25_v9.js",
+"js/x26_v91.js",
+"js/x27_v93.js",
+"js/x28_v94.js",
+"js/x29_v95.js",
 "js/x99_boot.js",
 "assets/img/corporate-1.jpg",
 "assets/img/corporate-2.jpg",
