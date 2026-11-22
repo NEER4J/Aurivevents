@@ -3,7 +3,7 @@
    - Same-origin files: network first (fresh after every deploy), cached copy when offline or slow.
    - Fonts and CDN libraries: cached after first use.
    - Supabase (data + auth) is never cached here; the app keeps its own offline copy and syncs. */
-const VERSION = 'auriv-2026-11-23-v95-bw-1';
+const VERSION = 'auriv-2026-11-23-v95-bw-2';
 const SHELL = [
 "./",
 "index.html",
@@ -20,6 +20,7 @@ const SHELL = [
 "js/config.js",
 "js/core.js",
 "js/help.js",
+"js/layout.js",
 "js/nav.js",
 "js/x00_framework.js",
 "js/x01_access.js",

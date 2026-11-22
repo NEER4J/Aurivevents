@@ -913,3 +913,131 @@ body.has93bar .v-bar{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 /* menu sheet rows: icon on the left */
 .modal a.v-row .ri{display:inline-flex;width:36px;justify-content:center;color:var(--fg-2)}
 .modal a.v-row .ri svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* =====================================================================
+   Layout — grey canvas, white cards, one page pattern on every screen.
+   Phone (<760): top bar · grouped cards · bottom tab bar · sheets from below.
+   Tablet (760–1099): wider page · actions in the header · tab bar · drawer from the right.
+   Desktop (1100+): side menu · page up to 1120 px · actions in the header · drawer from the right.
+   ===================================================================== */
+:root{--canvas:#F4F4F4;--card:#FFFFFF;--card-line:#E8E8E8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--canvas:#000000;--card:#111111;--card-line:#1F1F1F}}
+:root[data-theme="dark"]{--canvas:#000000;--card:#111111;--card-line:#1F1F1F}
+html,body{background:var(--canvas)}
+body::before{background:var(--canvas)}
+
+/* page frame */
+.v-page{background:var(--canvas)}
+.v-top{background:var(--canvas);border-bottom:0}
+.v-tabs{background:var(--canvas);padding:0 var(--s3)}
+.v-body{padding:0 0 var(--s4)}
+.v-list{padding:0 var(--s4)}
+.v-seg{margin:var(--s3) var(--s4);background:var(--surface-2)}
+.v-seg button[aria-pressed="true"]{background:var(--card)}
+
+/* section → card */
+.ui-group{margin-top:var(--s4)}
+.ui-group > .v-sec{padding:0 var(--s1) var(--s2)}
+.ui-group > .v-sec .eyebrow{font-size:13px;font-weight:500;color:var(--fg-2);text-transform:none;letter-spacing:0}
+.ui-group > .v-sec a,.ui-group > .v-sec button{font-size:13px;font-weight:500;color:var(--fg)}
+.ui-card{background:var(--card);border:1px solid var(--card-line);border-radius:16px;overflow:hidden}
+.ui-card-lead{margin-top:var(--s3)}
+.ui-empty-group .ui-card{display:none}
+.ui-card > .v-row,.ui-card > .v-ban,.ui-card > .v-kv{background:transparent;border-bottom:1px solid var(--card-line)}
+.ui-card > :last-child{border-bottom:0!important}
+.ui-card > .v-row:hover,.ui-card > .v-ban:hover{background:var(--surface)}
+.ui-card > .v-empty{padding:var(--s4)}
+.ui-card > .v-note{padding:var(--s3) var(--s4)}
+.ui-card > .v-pad{padding:var(--s3) var(--s4)}
+.v-ban{padding-left:var(--s3)}
+.v-ban::before{width:4px;border-radius:4px;margin:4px 0}
+.ui-lead{margin-top:var(--s3)}
+.v-list > .v-note.ui-lead{padding:0 var(--s1)}
+.v-kpi{border-radius:16px;overflow:hidden;border:1px solid var(--card-line);background:var(--card-line)}
+.v-kpi div{background:var(--card)}
+
+/* legacy (full-view) pages as cards too */
+.v-legacy{padding:0 var(--s4) var(--s5)}
+.v-legacy .card{background:var(--card)!important;border:1px solid var(--card-line)!important;border-radius:16px!important;padding:var(--s4)!important;margin:var(--s3) 0!important}
+.v-legacy .card .card{border:0!important;padding:var(--s2) 0 0!important;margin:0!important}
+.v-legacy h1{padding:var(--s3) 0 0}
+.v-legacy > .eyebrow,.v-legacy > .muted,.v-legacy > .small,.v-legacy > .row,.v-legacy .tabs,.v-legacy .chips{padding-left:0;padding-right:0}
+.v-legacy .stat{padding:var(--s2) 0}
+.v-legacy .scroll{margin:0;padding:0}
+
+/* phone: bars */
+.v-bar{background:var(--canvas);border-top:0}
+#bar93{background:var(--card);border-top:1px solid var(--card-line)}
+.v-top .v-ib:hover{background:var(--surface-2)}
+
+/* sheets */
+.modal{background:var(--card)}
+.modal .hd,.modal .ft{background:var(--card)}
+
+/* ---------- tablet and desktop ---------- */
+@media (min-width:760px){
+  .shell,.shell.full,.shell.nopanel{display:grid;grid-template-columns:minmax(0,1fr);height:100vh;overflow:hidden}
+  .shell > .main,.shell.full > .main,.shell.nopanel > .main{height:100vh;overflow:auto;border-right:0}
+  .shell #app.wrap,.shell.full #app.wrap,.shell.nopanel #app.wrap{max-width:1120px;margin:0 auto;padding:0 var(--s5)}
+  .v-page{min-height:0}
+  .v-top{position:sticky;top:0;height:auto;min-height:76px;padding:var(--s4) 0 var(--s3);gap:var(--s3);align-items:center}
+  .v-top .ttl{font-size:26px;line-height:1.2;white-space:normal}
+  .v-top .ttl small{font-size:13.5px;margin-top:4px}
+  .v-tabs{top:76px;padding:0;margin-bottom:var(--s2)}
+  .v-list,.v-seg{padding-left:0;padding-right:0;margin-left:0;margin-right:0}
+  .v-seg{max-width:480px}
+  .ui-actions{display:flex;gap:var(--s2);align-items:center;flex:none}
+  .ui-actions .btn{height:40px;flex:none;width:auto}
+  .ui-actions .btn.pri{padding:0 var(--s5)}
+  .ui-actions .ui-ib{border:1px solid var(--line-strong);width:40px;height:40px}
+  .v-bar{position:sticky;bottom:0;background:var(--canvas);padding-left:0;padding-right:0}
+  .v-legacy{padding:0 0 var(--s5);max-width:none}
+  .toast{bottom:24px;right:24px;left:auto;transform:none}
+  /* drawer */
+  #panel{display:block!important;position:fixed;top:0;right:0;bottom:0;width:min(560px,92vw);height:auto;z-index:70;background:var(--card);border-left:1px solid var(--card-line);transform:translateX(100%);transition:transform .22s ease;overflow:auto}
+  #panel:empty::after{content:none}
+  body.drawer-open #panel{transform:none}
+  #scrim{position:fixed;inset:0;z-index:69;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s}
+  body.drawer-open #scrim{opacity:1;pointer-events:auto}
+  #panel .modal{max-width:none;min-height:100%;margin:0;border:0;border-radius:0;padding:0 var(--s5) var(--s5);background:var(--card)}
+  #panel .modal .hd{padding-top:var(--s4)}
+  /* tablet tab bar sits under the page */
+  body.has93bar .shell > .main{height:calc(100vh - 64px)}
+}
+@media (prefers-reduced-motion:reduce){#panel,#scrim{transition:none}}
+
+/* ---------- desktop: side menu ---------- */
+@media (min-width:1100px){
+  .shell,.shell.full,.shell.nopanel{grid-template-columns:248px minmax(0,1fr)}
+  #rail{display:flex;background:var(--card);border-right:1px solid var(--card-line);height:100vh}
+  .shell #app.wrap,.shell.full #app.wrap,.shell.nopanel #app.wrap{padding:0 var(--s6)}
+  /* Home: a two-column dashboard */
+  body[data-page="home"] .v-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--s5);align-items:start}
+  body[data-page="home"] .v-list > *{grid-column:1/-1}
+  body[data-page="home"] .v-list > .ui-group:nth-of-type(n+2){grid-column:auto}
+}
+/* summary tiles: each its own card */
+.v-kpi{background:none;border:0;border-radius:0;overflow:visible;gap:var(--s3);margin:var(--s3) 0}
+.v-kpi div{background:var(--card);border:1px solid var(--card-line);border-radius:16px;padding:var(--s3) var(--s4)}
+.v-kpi b{font-size:20px;font-weight:500}
+/* names wrap to two lines instead of being cut */
+.ui-card .v-row .ttl{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ui-card .v-row .sub{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* help page */
+.hp-ic{width:36px;height:36px;border-radius:50%;background:var(--surface);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.hp-ic svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.hp-go{font-size:13px;font-weight:500;white-space:nowrap}
+.hp-lead{font-size:15.5px;color:var(--fg-2);padding:var(--s3) var(--s1) 0}
+.hp-kv{grid-template-columns:minmax(0,190px) minmax(0,1fr)}
+.hp-kv dd{font-size:14px;color:var(--fg-2)}
+.hp-q{border-bottom:1px solid var(--card-line);padding:0 var(--s4)}
+.hp-q:last-child{border-bottom:0}
+.hp-q summary{padding:14px 0;font-weight:500;cursor:pointer;list-style:none}
+.hp-q summary::-webkit-details-marker{display:none}
+.hp-q summary::after{content:"+";float:right;color:var(--fg-3)} .hp-q[open] summary::after{content:"−"}
+.hp-a{padding:0 0 14px;color:var(--fg-2);font-size:14px}
+.hp-foot{text-align:center;padding:var(--s5) 0}
+.ui-card .v-row .main{align-items:stretch;text-align:left}
+
+/* a row title marked "wrap" is not the page container */
+.v-row .ttl.wrap{max-width:none!important;margin:0!important;padding:0!important;border:0!important;min-height:0!important}

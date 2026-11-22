@@ -6,15 +6,19 @@ The web app renders as a phone layout everywhere (framed on desktop) so it match
 **Live:** https://aurivevents.vercel.app/
 
 ## How the app is organised
-- **Dock:** Home (today: first thing, money tiles, needs attention, coming up, cash weeks) · Events · Vendors ·
-  Company (owner) / Reimbursements (staff) · **More**.
-- **More** lists every other v5.10 tool, grouped: Work · Clients & sales · People & vendors · Money · Reports ·
-  Setup & admin. Each tool screen has a "‹ More" back button. Search finds tools too.
-- **Event page:** six numbers + Client / Vendors / Expenses / Changes, and **⋯** for Quote, Budget, Scope, Tasks,
-  Crew, Run sheet, Client approvals, Other income, Documents, Activity, Access, Guests, Production, Travel…
-- **Forms:** everyday fields first; the rest under **More options** (a TDS rate that will be deducted always stays visible).
-- **Settings:** company, team, categories, export, and **All settings** for the full v5.10 settings.
-Roles: Owner and Staff first; Event planner, Manager and Accountant are also available. See `js/simple.js`.
+One layout at three widths, black and white, with red only for anything late:
+- **Phone (under 760 px):** page title on top, sections as grouped cards, the main action above a bottom tab bar
+  (Home · Events · Tasks · Attention · More). Details open as sheets from below.
+- **Tablet (760–1099 px):** the same pages, wider; the main action sits in the page header; details open in a drawer
+  from the right.
+- **Desktop (1100 px and up):** a side menu with icons, pages up to 1120 px wide, Home as a two-column dashboard,
+  details in a drawer from the right (Esc or a click outside closes it).
+
+Features are those of the v9.5 build: status-first Home, tasks, calendar and week board, the change loop with vendors
+and clients, crew duties, the owner cockpit, inventory and print jobs, event templates, client statements, margin
+rollups, money checks, and the full v5.10 toolset (quotes, vendor orders, payments, guests, production, reports).
+Roles: Owner, Event planner, Manager, Coordinator, Staff and Accountant, each seeing only what they need.
+The **Account** page holds cloud sync, the company switcher, team access, install and sign out.
 
 ## Install as an app (PWA)
 Open the site on a phone → menu → **Install the app** (Android/Chrome) or **Add to Home Screen** (iPhone, Safari).
@@ -23,16 +27,16 @@ the connection returns. When adding new files to the app, add them to the `SHELL
 
 ## Structure
 ```
-index.html            App shell (device frame, app bar, drawer, tab bar)
-css/app.css           Design system
+index.html            App shell (rail and detail drawer are added at boot)
+css/app.css           Design system: v9.5 base, then the black-and-white theme and the layout (at the end)
 js/config.js          Supabase URL + publishable key + demo credentials
-js/cloud.js           Supabase auth gate + cloud sync (loads the app scripts)
-js/ui.js              Mobile shell behaviour (drawer, icon tab bar, app bar, install)
-js/simple.js          Basic app from the build guide (default) + advanced-tools switch
-js/visual.js          Photos, hero headers, ticket cards, layout tidying
-js/controls.js        Custom dropdowns, phone-friendly tables
+js/cloud.js           Supabase auth gate + cloud sync (loads the app scripts, moves v5.10 data to v9.5 keys)
+js/core.js, js/x*.js  App modules, v5.1 → v9.5 (load order is defined in js/cloud.js)
+js/help.js            Help & tutorials page
+js/account.js         Account page: sync, company, team access, install, sign out
+js/nav.js             Bottom tab bar (phone and tablet) and menu icons
+js/layout.js          Production layout: sections as cards, header actions, detail drawer, dashboard Home
 sw.js                 Service worker (offline app shell)
-js/core.js, js/x*.js  App modules (load order is defined in js/cloud.js)
 supabase/             Supabase CLI project (migrations)
 ```
 
