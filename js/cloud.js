@@ -65,6 +65,40 @@
   const modalOpen = () => !!document.querySelector('.modal');
   function rebuildIndex() { byLid = {}; CLOUD.shared.forEach(w => { byLid[w.local_id] = w }) }
 
+  /* ---------------- never wait forever ---------------- */
+  const within = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+  /* a pull that outlives its deadline still finishes; the app then reloads its copy from storage */
+  function pullInBackground(user) {
+    const p = pull(user);
+    p.then(() => { if (appLoaded && window.__ready) { try { reloadFromStorage(); render(); toastSafe('Updated from the cloud') } catch (e) { console.error(e) } } }).catch(e => console.warn('pull failed, using device copy', e));
+    return p;
+  }
+  const bootErrors = [];
+  window.addEventListener('error', e => { if (!window.__ready) bootErrors.push((e.message || 'error') + (e.filename ? ' · ' + e.filename.split('/').pop() : '')) });
+  window.addEventListener('unhandledrejection', e => { if (!window.__ready) bootErrors.push(String((e.reason && e.reason.message) || e.reason || 'error')) });
+
+  /* ---------------- recovery screen: shown only if the app did not open ---------------- */
+  function showRecovery(reason) {
+    if (window.__ready && !window.__bootError) return;
+    setState('error');
+    const why = [reason].concat(bootErrors).filter(Boolean).slice(0, 4);
+    $app().innerHTML = `<div class="recover"><div class="rc-card">
+      <div class="rc-word">Aurivevents</div>
+      <h1>It's taking too long to open</h1>
+      <p>Your data is safe on this device${CLOUD.user ? ' and in the cloud' : ''}. Try again, or refresh the app's files — that keeps your data and only fetches the app again.</p>
+      <div class="rc-acts"><button class="btn pri big" type="button" id="rc-retry">Try again</button>
+      <button class="btn big" type="button" id="rc-fresh">Refresh app files</button>
+      ${CLOUD.user ? '<button class="btn big" type="button" id="rc-out">Sign out</button>' : ''}</div>
+      ${why.length ? `<details class="rc-why"><summary>What happened</summary><div>${why.map(esc).join('<br>')}</div></details>` : ''}</div></div>`;
+    document.getElementById('rc-retry').onclick = () => location.reload();
+    document.getElementById('rc-fresh').onclick = async () => {
+      try { const rs = await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r => r.unregister())) } catch (e) {}
+      try { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))) } catch (e) {}
+      location.reload();
+    };
+    const out = document.getElementById('rc-out'); if (out) out.onclick = () => signOut();
+  }
+
   /* ---------------- boot the app scripts in order ---------------- */
   let appLoaded = false;
   /* v5.10 → v9.5: data saved by the old app (on this device or pulled from the cloud) moves to the v9.5 keys
@@ -80,8 +114,13 @@
     if (appLoaded) return; appLoaded = true;
     try { moveOldKeys() } catch (e) { console.error('move keys', e) }
     document.documentElement.classList.remove('auth-mode');
-    APP_SCRIPTS.forEach(n => { const s = document.createElement('script'); s.src = 'js/' + n + '.js'; s.async = false; document.body.appendChild(s) });
-    const t = setInterval(() => { if (window.__ready) { clearInterval(t); afterReady() } }, 60);
+    const failed = [];
+    APP_SCRIPTS.forEach(n => { const s = document.createElement('script'); s.src = 'js/' + n + '.js'; s.async = false; s.onerror = () => failed.push(n + '.js could not be loaded'); document.body.appendChild(s) });
+    const t0 = Date.now();
+    const t = setInterval(() => {
+      if (window.__ready) { clearInterval(t); afterReady(); return }
+      if (window.__bootError || failed.length || Date.now() - t0 > 15000) { clearInterval(t); showRecovery(window.__bootError ? String(window.__bootError.message || window.__bootError) : failed[0] || 'The app did not finish starting within 15 seconds.') }
+    }, 60);
   }
 
   /* Supabase is the identity: open the in-app session as the right team member, no second sign-in. */
@@ -474,10 +513,13 @@
 
   async function enter(user) {
     CLOUD.user = user;
-    try { await pull(user) }
+    try { await within(pullInBackground(user), 15000) }
     catch (e) {
+      if (e && e.message === 'timeout') { console.warn('pull slow, opening the device copy'); }
+      else {
       console.error(e);
-      if (/app_state|schema cache|does not exist/.test(e.message || '')) { await sb.auth.signOut(); CLOUD.user = null; return busy(false, 'Cloud database is not set up yet (run the Supabase migrations).', 'bad') }
+        if (/app_state|schema cache|does not exist/.test(e.message || '')) { await sb.auth.signOut(); CLOUD.user = null; return busy(false, 'Cloud database is not set up yet (run the Supabase migrations).', 'bad') }
+      }
     }
     sessionStorage.removeItem(LOCAL_ONLY);
     if (!location.hash || location.hash === '#' || /access_token|type=/.test(location.hash)) history.replaceState(null, '', location.pathname + '#home');
@@ -548,12 +590,12 @@
     const publicLink = /^#(vendorack|enquire|client\/|portal\/|pay\/|jobcard\/|rsvp|family|guestinfo|register)/.test(initialHash);
     if (!configured || publicLink) return loadApp();
     let session = null;
-    try { session = (await sb.auth.getSession()).data.session } catch (e) {}
+    try { session = (await within(sb.auth.getSession(), 6000)).data.session } catch (e) { console.warn('session check', e) }
     if (/access_token|error_description|type=/.test(location.hash)) history.replaceState(null, '', location.pathname + (recovering ? '' : '#home'));
     if (recovering && session) { AUTH.mode = 'newpass'; return renderAuth() }
     if (session) {
       CLOUD.user = session.user;
-      try { await pull(session.user) } catch (e) { console.warn('pull failed, using device copy', e) }
+      try { await within(pullInBackground(session.user), 10000) } catch (e) { console.warn('pull slow or failed, opening the device copy', e) }
       if (needsSetup()) return renderSetup();
       return loadApp();
     }

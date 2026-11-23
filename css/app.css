@@ -2330,3 +2330,14 @@ input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
 .v-seg.has-thumb > button:hover:not([aria-pressed="true"]):not([aria-selected="true"]):not(.on),.theme-seg.has-thumb > button:hover:not([aria-pressed="true"]){color:var(--ink)!important}
 .v-seg.has-thumb > button:is([aria-pressed="true"],[aria-selected="true"],.on):hover,.theme-seg.has-thumb > button[aria-pressed="true"]:hover{color:var(--brand-ink)!important}
 .v-tab[aria-selected="true"]:hover,.btn.chip.on:hover,.v-filters .fchip.on:hover{background:var(--brand-2)!important;color:var(--brand-ink)!important}
+
+/* recovery screen (only when the app did not open) */
+.recover{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+.rc-card{width:100%;max-width:440px;background:var(--panel);border-radius:30px;padding:28px 24px}
+.rc-word{font-size:15px;color:var(--brand);font-weight:500}
+.recover h1{font-size:28px;letter-spacing:-.035em;margin:6px 0 10px}
+.recover p{color:var(--muted);font-size:15px;line-height:1.55;margin:0 0 20px}
+.rc-acts{display:flex;flex-direction:column;gap:10px}
+.rc-why{margin-top:18px;font-size:13px;color:var(--muted)}
+.rc-why summary{font-size:13.5px;color:var(--ink)}
+.rc-why div{padding:8px 0 0;overflow-wrap:anywhere}
