@@ -479,29 +479,29 @@
       busy(true);
       if (m === 'forgot') {
         const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
-        if (error) return busy(false, error.message, 'bad');
+        if (error) return busy(false, errMsg(error), 'bad');
         AUTH.mode = 'signin'; return busy(false, 'If that email has an account, a reset link is on its way.', 'ok');
       }
       if (m === 'newpass') {
         const { data, error } = await sb.auth.updateUser({ password });
-        if (error) return busy(false, error.message, 'bad');
+        if (error) return busy(false, errMsg(error), 'bad');
         return enter(data.user);
       }
       if (m === 'signup') {
         const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + location.pathname } });
-        if (error) return busy(false, error.message, 'bad');
+        if (error) return busy(false, errMsg(error), 'bad');
         if (!data.session) { AUTH.mode = 'signin'; return busy(false, 'Almost there — check your inbox and confirm your email, then sign in.', 'ok') }
         return enter(data.session.user);
       }
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) return busy(false, /confirm/i.test(error.message) ? 'Please confirm your email first — check your inbox.' : /invalid/i.test(error.message) ? 'Wrong email or password.' : error.message, 'bad');
+      if (error) return busy(false, isNet(error) ? UNREACH : /confirm/i.test(error.message) ? 'Please confirm your email first — check your inbox.' : /invalid/i.test(error.message) ? 'Wrong email or password.' : error.message, 'bad');
       enter(data.user);
     });
     const demo = F('au-demo');
     if (demo) demo.addEventListener('click', async () => {
       busy(true);
       const { data, error } = await sb.auth.signInWithPassword(CFG.demo);
-      if (error) return busy(false, 'The demo account is not available right now (' + error.message + ').', 'bad');
+      if (error) return busy(false, isNet(error) ? UNREACH : 'The demo account is not available right now (' + error.message + ').', 'bad');
       enter(data.user);
     });
     if (F('au-forgot')) F('au-forgot').addEventListener('click', e => { e.preventDefault(); AUTH.email = val('au-email').trim(); AUTH.mode = 'forgot'; AUTH.msg = ''; renderAuth() });
@@ -509,6 +509,10 @@
     if (F('au-local')) F('au-local').addEventListener('click', e => { e.preventDefault(); sessionStorage.setItem(LOCAL_ONLY, '1'); if (lsGet(M.uid)) clearAppData(); loadApp() });
   }
   function flash(msg, kind) { AUTH.msg = msg; AUTH.kind = kind; renderAuth() }
+  /* the sign-in server could not be reached at all (offline, or the cloud project is paused) */
+  const UNREACH = 'Can\u2019t reach the sign-in server right now. Check your connection and try again \u2014 or use \u201cContinue without an account\u201d: your work stays on this device.';
+  const isNet = e => /failed to fetch|networkerror|load failed|network request failed|fetch/i.test((e && (e.message || e.name)) || String(e || ''));
+  const errMsg = e => isNet(e) ? UNREACH : (e && e.message) || 'Something went wrong. Please try again.';
   function busy(b, msg, kind) { AUTH.busy = b; if (msg !== undefined) { AUTH.msg = msg; AUTH.kind = kind } else if (b) AUTH.msg = ''; renderAuth() }
 
   async function enter(user) {
@@ -602,6 +606,18 @@
     if (sessionStorage.getItem(LOCAL_ONLY)) return loadApp();
     if (authError) { AUTH.msg = decodeURIComponent(authError.replace(/\+/g, ' ')) + ' — please try again.'; AUTH.kind = 'bad' }
     renderAuth();
+    /* warn up front if the sign-in server cannot be reached */
+    within(fetch(CFG.supabaseUrl + '/auth/v1/health', { headers: { apikey: CFG.supabaseKey } }), 6000)
+      .then(r => { if (!r.ok && r.status >= 500) warnInPlace() })
+      .catch(() => warnInPlace());
+    function warnInPlace() {
+      if (AUTH.msg || CLOUD.user) return;
+      const f = document.getElementById('auth-form'); if (!f) return;
+      AUTH.msg = UNREACH; AUTH.kind = 'bad';
+      const btn = f.querySelector('button[type=submit]');
+      const d = document.createElement('div'); d.className = 'auth-msg bad'; d.textContent = UNREACH;
+      f.insertBefore(d, btn);
+    }
   }
   start();
 })();
